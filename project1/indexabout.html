@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us</title>
+
+    <style>
+        body {
+            display: flex;
+            background-color: rgb(0, 0, 0);
+            flex-direction: column;
+            /* height: 5000px; */
+        }
+
+        .margin {
+            margin-top: 130px;
+        }
+
+        .image h2 {
+            color: rgb(0, 0, 0);
+            text-align: center;
+            border: 2px solid rgb(255, 0, 0);
+            border-radius: 15px;
+            /* font-size: 15px */
+            /* display: inline-block; */
+            width: 20%;
+            margin-left: 660px;
+            background-color: antiquewhite;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+
+        .image h2:hover {
+            color: darkgoldenrod;
+            background-color: rgb(223, 245, 201);
+            border: 2px solid black;
+        }
+
+        .img1 img {
+            width: 50%;
+            float: left;
+            opacity: 0.5;
+        }
+
+        .img2 img {
+            width: 50%;
+            float: right;
+            height: 520px;
+            opacity: 0.5;
+        }
+
+        .Vicky h1 {
+            color: rgb(255, 26, 202);
+            text-align: center;
+            background-color: aqua;
+            border: 3px solid red;
+            font-size: 50px;
+            border-radius: 10px;
+            width: 50%;
+            align-items: center;
+            margin-left: 400px;
+            flex-wrap: wrap;
+            position: fixed;
+        }
+
+        .button button {
+            color: rgb(0, 0, 0);
+            font-size: 18px;
+            border-radius: 10px;
+            float: right;
+            position: absolute;
+            bottom: 29px;
+            margin-left: 745px;
+            /* size:50px; */
+            background-color: aqua;
+            border: 3px solid red;
+        }
+
+        .button button:hover {
+            color: darkgoldenrod;
+            background-color: rgb(223, 245, 201);
+        }
+
+        .address {
+            display: flex;
+            margin-top: 15px;
+            border: 2px solid red;
+            border-radius: 15px;
+            /* width: 33%; */
+            margin-left: 20px;
+            padding-left: 7px;
+            flex-direction: column;
+            padding-top: 7px;
+            padding-bottom: 7px;
+        }
+
+        .address h3 {
+            padding-top: 7px;
+            font-size: 29px;
+            text-align: center;
+            margin: 2px auto;
+            /* height: 200px; */
+            width: 30%;
+            /* border: 3px solid red; */
+            color: white;
+            text-decoration: underline;
+        }
+
+        .address ul {
+            color: white;
+            padding: 12px;
+            padding-bottom: 5px;
+            font-size: 25px;
+            padding-left: 12px;
+        }
+
+        .location {
+            margin-left: 10px;
+            /* width: 29%; */
+            border: 3px solid aqua;
+            margin-top: 20px;
+            border-radius: 15px;
+            padding: 7px;
+        }
+
+        .quick {
+            margin-left: 10px;
+            /* width: 29%; */
+            border: 3px solid aqua;
+            margin-top: 20px;
+            border-radius: 15px;
+            padding: 7px;
+            /* font-size: 22px; */
+        }
+
+        .quick ul {
+            font-size: 25px;
+        }
+
+        .kmwt {
+            margin-left: 10px;
+            /* width: 29%; */
+            border: 3px solid aqua;
+            margin-top: 20px;
+            border-radius: 15px;
+            padding: 7px;
+            /* font-size: 22px; */
+        }
+
+        .kmwt ul {
+            font-size: 25px;
+        }
+
+        .location {
+            margin: 15px;
+        }
+
+        .quick {
+            margin: 15px;
+        }
+
+        .kmwt {
+            margin: 15px;
+        }
+
+        .location h3 {
+            color: rgb(0, 0, 0);
+            text-align: center;
+            border: 2px solid rgb(255, 0, 0);
+            border-radius: 15px;
+            /* font-size: 15px */
+            /* display: inline-block; */
+            width: 20%;
+            margin-left: 660px;
+            background-color: antiquewhite;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+
+        .location h3:hover {
+            color: darkgoldenrod;
+            background-color: rgb(223, 245, 201);
+            border: 2px solid black;
+        }
+
+
+        .quick h3 {
+            color: rgb(0, 0, 0);
+            text-align: center;
+            border: 2px solid rgb(255, 0, 0);
+            border-radius: 15px;
+            /* font-size: 15px */
+            /* display: inline-block; */
+            width: 20%;
+            margin-left: 660px;
+            background-color: antiquewhite;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+
+        .quick h3:hover {
+            color: darkgoldenrod;
+            background-color: rgb(223, 245, 201);
+            border: 2px solid black;
+        }
+
+        .kmwt h3 {
+            color: rgb(0, 0, 0);
+            text-align: center;
+            border: 2px solid rgb(255, 0, 0);
+            border-radius: 15px;
+            /* font-size: 15px */
+            /* display: inline-block; */
+            width: 20%;
+            margin-left: 660px;
+            background-color: antiquewhite;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+
+        .kmwt h3:hover {
+            color: darkgoldenrod;
+            background-color: rgb(223, 245, 201);
+            border: 2px solid black;
+        }
+        .Vicky h1:hover {
+            color: darkgoldenrod;
+            background-color: rgb(223, 245, 201);
+            border: 4px solid rgb(0, 255, 191);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="Vicky">
+        <h1>Welcome to the Motu,s fitness Club</h1>
+    </div>
+    <div class="image">
+        <!-- <h1>Welcome</h1> -->
+        <div class="margin">
+            <div class="img1">
+                <h2>About Us</h2>
+                <img src="img/about1.jpg" alt="">
+            </div>
+            <div class="img2">
+                <img src="img/about2.jpg" alt="">
+            </div>
+        </div>
+        <div class="button">
+            <button>CHAT</button>
+        </div>
+
+    </div>
+    <div class="address">
+        <div class="location">
+            <h3>Vicky fitness</h3>
+            <ul type="disc">
+                <li>
+                    largest Gym In jaipur With Premium Graded Equipments With Steam, Cafe, Zumba, Dance, Yoga, Strength,
+                    Cardio And Many More
+                </li>
+                <br><br>
+                <li>
+                    Gnadhi path , Plot No. 5, Opposite CNG Pump.
+                </li>
+                <br><br>
+                <li>
+                    Plot No 1, UGF, Block A, A-1, Outer Ring Rd, Shubham Enclave, Sunder Vihar, Paschim Vihar, Jaipur,
+                    110063
+                </li>
+            </ul>
+        </div>
+
+
+
+        <div class="quick">
+            <h3>Quick details</h3>
+            <ul type="disc">
+                <li>
+                    location jaipur gandhipath
+                </li>
+                <br><br>
+                <li>
+                    Owner: Hanuman kumawat
+                </li>
+                <br><br>
+            </ul>
+        </div>
+
+        <div class="kmwt">
+            <h3>Hanuman kumawat</h3>
+            <ul type="disc">
+                <li>
+                    Owner of one of India's largest fitness channels on YouTube, Hanuman kumawat is a sports science
+                    nutritionist and content creator. He is also a fitness instructor and is famous for workout routines
+                    on the video-blogging platform. He also conducts online fitness coaching classes and is counted
+                    among the top fitness influencers in the country.
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</body>
+
+</html>

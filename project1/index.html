@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>VICKY Fitness</title>
+</head>
+<link href="https://fonts.googleapis.com/css?family=Baloo+Bhai&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+    /* CSS Reset */
+    body {
+        font-family: 'Baloo Bhai', cursive;
+        color: white;
+        /* margin: 0px; */
+        padding: 1px;
+        /* width: 1800px; */
+        background: url('img/bg.jpg');
+
+    }
+
+    .left {
+        display: inline-block;
+        /* border: 2px solid rgb(0, 0, 0); */
+        position: absolute;
+        left: 60px;
+        top: 20px;
+        /* border-radius: 10px; */
+    }
+
+    .left img {
+        border: #ffffff;
+        border-radius: 10px;
+    }
+
+    .left img {
+        width: 211px;
+    }
+
+    .vicky {
+        line-height: 34px;
+        text-align: center;
+        font-size: 34px;
+    }
+
+    .mid {
+        display: block;
+        width: 36%;
+
+        margin: 22px auto;
+        background-color: rgb(189, 255, 255);
+        display: flex;
+        text-indent: 50px;
+        border-radius: 5px;
+        /* background-color: red; */
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-size: 20px;
+        padding-left: 25px;
+        padding-right: 30px;
+        margin-left: 30%;
+        position: fixed;
+        justify-content: center;
+    }
+
+    .mid a {
+        text-decoration: none;
+        color: red;
+
+    }
+
+    .mid a:hover {
+        text-decoration: underline;
+        color: rgb(97, 97, 97);
+    }
+
+    .right {
+        position: absolute;
+        right: 34px;
+        top: 43px;
+        display: inline-block;
+    }
+
+    /* .navbar {
+        position: sticky;
+        display: inline-block;
+        background-color: red;
+        border-radius: 25px;
+    }
+
+    .navbar li {
+        display: inline-block;
+        font-size: 20px;
+
+    }
+
+    .navbar li a {
+        color: white;
+        text-decoration: none;
+        padding: 34px 24px;
+    }
+
+    .navbar li a:hover,
+    .navbar li a.active {
+        text-decoration: underline;
+        color: yellow;
+    } */
+
+    .btn {
+        margin: 0px 10px;
+        background-color: aqua;
+        color: black;
+        padding: 3px 4px;
+        border: 2px solid rgb(65, 7, 255);
+        border-radius: 7px;
+        font-size: 15px;
+        cursor: pointer;
+        font-family: 'Baloo Bhai', cursive;
+    }
+
+    .btn:hover {
+        background-color: #97f4f4;
+    }
+
+    .container {
+        border: 2px solid rgb(248, 248, 248);
+        margin: 300px 49px;
+        margin-left: 100px;
+        padding: 68px 75px;
+        width: 33%;
+        font-size: 20px;
+        border-radius: 20px;
+    }
+
+    .form-group input {
+        text-align: center;
+        display: block;
+        border: 2px solid red;
+        margin: 9px auto;
+        padding: 5px;
+        width: 350px;
+        border-radius: 6px;
+        font-size: 17px;
+        font-family: 'Baloo Bhai', cursive;
+    }
+
+    .container h2 {
+        color: rgb(255, 178, 178);
+        text-align: center;
+    }
+
+    .container button {
+        display: block;
+        width: 68%;
+        margin: 20px auto;
+    }
+
+    .class h3 {
+        font-size: 45px;
+        border: 2px solid #ffffff;
+        border-radius: 10px;
+        text-align: center;
+        width: 72.5%;
+        margin-left: 100px;
+        background-color: rgb(160, 255, 255);
+        color: red;
+        text-decoration: underline;
+    }
+
+    .chest-h3:hover {
+        text-decoration: underline;
+        color: rgb(97, 97, 97);
+        cursor: pointer;
+    }
+
+
+    .class1 {
+
+        border: 2px solid rgb(248, 248, 248);
+        width: 70%;
+        font-size: 19px;
+        margin-left: 100px;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: justify;
+    }
+
+    .class img {
+        /* margin-top:0px; */
+        width: 211px;
+        float: right;
+        margin-right: 50px;
+        border: 2px solid red;
+        border-radius: 20px;
+    }
+
+    .class1:hover {
+        color: rgb(184, 255, 255);
+
+    }
+
+    /* this all about .shoulder */
+
+    .shoulder {
+        /* border: 4px solid rgb(18, 237, 18); */
+        margin-top: 225px;
+
+    }
+
+
+
+    .shoulder img {
+        margin-top: 25px;
+        margin-left: 40px;
+        width: 300px;
+        float: left;
+        border: 2px solid red;
+        border-radius: 20px;
+    }
+
+    .shoulder-text {
+        text-align: justify;
+        padding: 20px;
+        width: 70%;
+        border: 2px solid rgb(255, 255, 255);
+        border-radius: 10px;
+        margin-left: 400px;
+        font-size: 19px;
+
+    }
+
+    .shoulder-text:hover {
+        color: rgb(184, 255, 255);
+    }
+
+    .shoulder h3 {
+        font-size: 45px;
+        border: 2px solid #ffffff;
+        border-radius: 10px;
+        text-align: center;
+        width: 72.5%;
+        margin-left: 400px;
+        background-color: rgb(160, 255, 255);
+        color: red;
+        text-decoration: underline;
+    }
+
+    .shoulder-h3:hover {
+        text-decoration: underline;
+        color: rgb(97, 97, 97);
+        cursor: pointer;
+    }
+
+
+
+
+    /* This is all about triceps */
+
+
+    .tricep {
+        /* border: 3px solid red; */
+        margin-top: 225px;
+    }
+
+    .tricep img {
+        width: 225px;
+        margin-top: 25px;
+        float: right;
+        margin-right: 50px;
+        border: 2px solid red;
+        border-radius: 20px;
+    }
+
+    .tricep-text {
+        border: 2px solid rgb(248, 248, 248);
+        width: 70%;
+        font-size: 19px;
+        margin-left: 100px;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: justify;
+
+    }
+
+    .tricep h3 {
+        font-size: 45px;
+        border: 2px solid #ffffff;
+        border-radius: 10px;
+        text-align: center;
+        width: 72.5%;
+        margin-left: 100px;
+        background-color: rgb(160, 255, 255);
+        color: red;
+        text-decoration: underline;
+    }
+
+    .tricep-h3:hover {
+        text-decoration: underline;
+        color: rgb(97, 97, 97);
+        cursor: pointer;
+    }
+
+
+    .tricep-text:hover {
+        color: rgb(184, 255, 255);
+    }
+
+
+
+    /* this all about bicep */
+
+    .Bicep {
+        /* border: 4px solid rgb(18, 237, 18); */
+        margin-top: 225px;
+
+    }
+
+    .Bicep img {
+        margin-top: 15px;
+        margin-left: 40px;
+        width: 270px;
+        float: left;
+        border: 2px solid red;
+        border-radius: 20px;
+    }
+
+    .Bicep-text {
+        text-align: justify;
+        padding: 20px;
+        width: 70%;
+        border: 2px solid rgb(255, 255, 255);
+        border-radius: 10px;
+        margin-left: 400px;
+        font-size: 19px;
+
+    }
+
+    .Bicep-text:hover {
+        color: rgb(184, 255, 255);
+    }
+
+    .Bicep h3 {
+        font-size: 45px;
+        border: 2px solid #ffffff;
+        border-radius: 10px;
+        text-align: center;
+        width: 72.5%;
+        margin-left: 400px;
+        background-color: rgb(160, 255, 255);
+        color: red;
+        text-decoration: underline;
+    }
+
+    .Bicep-h3:hover {
+        text-decoration: underline;
+        color: rgb(97, 97, 97);
+        cursor: pointer;
+    }
+
+
+
+    /* This is all about backworkout */
+
+
+
+    .back {
+        /* border: 3px solid red; */
+        margin-top: 225px;
+    }
+
+    .back img {
+        width: 242px;
+        margin-top: 10px;
+        float: right;
+        margin-right: 50px;
+        border: 2px solid red;
+        border-radius: 20px;
+    }
+
+    .back-text {
+        border: 2px solid rgb(248, 248, 248);
+        width: 70%;
+        font-size: 19px;
+        margin-left: 100px;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: justify;
+
+    }
+
+    .back h3 {
+        font-size: 45px;
+        border: 2px solid #ffffff;
+        border-radius: 10px;
+        text-align: center;
+        width: 72.5%;
+        margin-left: 100px;
+        background-color: rgb(160, 255, 255);
+        color: red;
+        text-decoration: underline;
+    }
+
+    .back-h3:hover {
+        text-decoration: underline;
+        color: rgb(97, 97, 97);
+        cursor: pointer;
+    }
+
+
+    .back-text:hover {
+        color: rgb(184, 255, 255);
+    }
+</style>
+
+<body>
+    <link href="https://fonts.googleapis.com/css?family=Baloo+Bhai&display=swap" rel="stylesheet">
+
+    <header class="header">
+
+
+        <!-- Left box for logo -->
+        <div class="left">
+            <img src="img/logo.jpg" alt="Check your internet connection">
+            <div class="vicky">
+                VICKY Fitness
+            </div>
+        </div>
+
+
+        <!-- Mid box for navbar -->
+        <div class="mid">
+
+            <a href="indexhome.html">Home</a>
+            <a href="indexabout.html">About Us</a>
+            <a href="#">Fitness center</a>
+            <a href="indexcontact.html">Contact us</a>
+
+        </div>
+
+
+        <!-- Right box for buttons -->
+        <div class="right">
+            <button class="btn">Call with us</button><button class="btn">CHAT</button>
+        </div>
+
+
+    </header>
+
+    <div class="container">
+
+        <h2>Join the best GYM in jaipur now</h2>
+
+        <form action="noaction.php">
+
+            <div class="form-group">
+                <input type="text" name="" id="" placeholder="Enter your Name">
+            </div>
+            <div class="form-group">
+                <input type="text" name="Age" id="" placeholder="Enter your Age">
+            </div>
+            <div class="form-group">
+                <input type="text" name="" id="" placeholder="Enter your Gender">
+            </div>
+            <div class="form-group">
+                <input type="text" name="" id="" placeholder="Enter your Email">
+            </div>
+
+            <button class="btn">Submit</button>
+
+        </form>
+
+
+    </div>
+
+
+    <div class="class">
+
+        <h3 class="chest-h3">Chest workout</h3>
+
+        <img src="img/chest .jpg" alt="Check your internet connection">
+
+        <div class="class1">
+
+            Building chest strength is essential for a balanced physique and overall upper body power. Key exercises
+            include bench presses, push-ups, and chest flies, which target the pectoral muscles effectively.
+            Incorporating variations like incline and decline presses helps engage different muscle fibers, promoting
+            growth and definition. Aim for 3-4 sets of 8-12 reps for optimal results, ensuring proper form to prevent
+            injury. Additionally, adequate rest and nutrition are vital for muscle recovery and growth. Consistency in
+            your workout routine will lead to noticeable improvements in strength and appearance, contributing to
+            overall fitness and performance.
+        </div>
+
+    </div>
+
+
+    <div class="shoulder">
+
+        <h3 class="shoulder-h3">Soulder workout</h3>
+
+        <img src="img/shoulder.jpg" alt="Check your internet connection">
+
+        <div class="shoulder-text">
+
+            Shoulder exercises are essential for enhancing strength, flexibility, and stability in the shoulder joint.
+            Key exercises include shoulder presses, lateral raises, and front raises, which target the deltoids. Rotator
+            cuff exercises, like external rotations, help prevent injuries by strengthening the stabilizing muscles.
+            Resistance bands and dumbbells can be used for added resistance. Incorporating stretches, such as the
+            cross-body stretch and doorway stretch, improves flexibility and range of motion. It's crucial to maintain
+            proper form to avoid strain and injury. Consistent shoulder workouts can enhance athletic performance,
+            support daily activities, and contribute to overall upper body strength.
+        </div>
+
+    </div>
+
+
+    <div class="tricep">
+
+        <h3 class="tricep-h3">Tricep workout</h3>
+
+        <img src="img/triceps.jpg" alt="Check your internet connection">
+
+        <div class="tricep-text">
+
+            A triceps workout focuses on strengthening the three heads of the triceps muscle, enhancing arm definition
+            and overall upper body strength. Key exercises include tricep dips, overhead tricep extensions, and skull
+            crushers. Incorporating push-ups and close-grip bench presses also targets the triceps effectively. Aim for
+            3-4 sets of 8-12 reps for each exercise, adjusting weights to challenge yourself without compromising form.
+            Remember to warm up beforehand and stretch afterward to prevent injury and improve flexibility. Consistency
+            is key; integrating triceps workouts into your routine 1-2 times a week will promote muscle growth and
+            enhance performance in other lifts.
+        </div>
+
+    </div>
+
+
+    <div class="Bicep">
+
+        <h3 class="Bicep-h3">Bicep workout</h3>
+
+        <img src="img/Biceps.jpg" alt="Check your internet connection">
+
+        <div class="Bicep-text">
+
+            A solid biceps workout focuses on building strength and muscle definition. Key exercises include dumbbell
+            curls, barbell curls, and hammer curls, targeting the biceps brachii and brachialis. For optimal results,
+            incorporate variations like incline curls and concentration curls to engage different muscle fibers. Aim for
+            3-4 sets of 8-12 reps, allowing adequate rest between sets. Additionally, ensure proper form to prevent
+            injury and maximize effectiveness. Complement your workout with proper nutrition, including sufficient
+            protein intake, to support muscle recovery and growth. Consistency is key, so integrate biceps training into
+            your weekly routine for the best results.
+        </div>
+
+    </div>
+
+
+    <div class="back">
+
+        <h3 class="back-h3">back workout</h3>
+
+        <img src="img/back.jpg" alt="Check your internet connection">
+
+        <div class="back-text">
+
+            A back workout is essential for overall strength and posture. Key exercises include pull-ups, bent-over
+            rows, and deadlifts, targeting the major muscle groups: the latissimus dorsi, rhomboids, and trapezius.
+            Incorporating variations like single-arm dumbbell rows and lat pulldowns can enhance muscle engagement and
+            symmetry. Aim for 3-4 sets of 8-12 reps for hypertrophy. Don't forget to warm up to prevent injury and cool
+            down to aid recovery. Consistent back training not only improves athletic performance but also supports
+            daily activities, reducing the risk of back pain and promoting a balanced physique.
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
