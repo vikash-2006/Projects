@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DriveX — Car Booking & Feedback</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0b;
+      --surface: #111114;
+      --card: #16161a;
+      --border: #2a2a32;
+      --gold: #d4a017;
+      --gold-light: #f0c040;
+      --text: #f0ede8;
+      --muted: #7a7a8a;
+      --input-bg: #1c1c22;
+      --radius: 6px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── BACKGROUND ─── */
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(212,160,23,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212,160,23,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+    .bg-glow {
+      position: fixed; top: -200px; right: -200px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(212,160,23,0.08) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ─── LAYOUT ─── */
+    .wrapper {
+      position: relative; z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 70px;
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem; letter-spacing: 4px;
+      color: var(--gold);
+    }
+    .logo span { color: var(--text); }
+    
+    .nav-links {
+      display: flex;
+      gap: 15px;
+    }
+    .nav-tag {
+      font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); border: 1px solid var(--border);
+      padding: 8px 16px; border-radius: 50px;
+      background: transparent; cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .nav-tag:hover {
+      color: var(--text);
+      border-color: var(--muted);
+    }
+    .nav-tag.active {
+      color: #0a0a0b;
+      background: var(--gold);
+      border-color: var(--gold);
+      font-weight: bold;
+    }
+
+    /* ─── HERO TEXT ─── */
+    .hero { margin-bottom: 50px; }
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 7vw, 5.5rem);
+      line-height: 0.95; letter-spacing: 2px;
+      color: var(--text);
+    }
+    .hero h1 em {
+      font-style: normal; color: var(--gold);
+      display: block;
+    }
+    .hero p {
+      margin-top: 18px;
+      color: var(--muted); font-size: 0.95rem;
+      max-width: 420px; line-height: 1.6;
+    }
+
+    /* ─── STEP INDICATORS ─── */
+    .steps {
+      display: flex; gap: 8px; margin-bottom: 40px;
+    }
+    .step {
+      flex: 1; height: 3px;
+      background: var(--border); border-radius: 4px;
+      transition: background 0.4s;
+    }
+    .step.active { background: var(--gold); }
+    .step.done { background: rgba(212,160,23,0.35); }
+
+    /* ─── CARD ─── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 42px 40px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .card.centered {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    /* ─── SECTION LABELS ─── */
+    .section-label {
+      font-size: 0.68rem; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 24px; margin-top: 36px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px;
+      background: var(--border);
+    }
+    .section-label:first-child { margin-top: 0; }
+
+    /* ─── GRID ─── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+    .span-2 { grid-column: span 2; }
+
+    @media (max-width: 580px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .span-2 { grid-column: span 1; }
+      .card { padding: 28px 20px; }
+    }
+
+    /* ─── FIELDS ─── */
+    .field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 15px;}
+    .field label {
+      font-size: 0.75rem; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--muted);
+      font-weight: 500;
+    }
+    .field input,
+    .field select,
+    .field textarea {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.93rem;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+      appearance: none;
+    }
+    .field input::placeholder,
+    .field textarea::placeholder { color: #3d3d50; }
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212,160,23,0.1);
+    }
+    .field select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7a8a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      cursor: pointer;
+    }
+    .field select option { background: #1c1c22; }
+    .field textarea { resize: vertical; min-height: 80px; }
+
+    /* ─── CAR TYPE SELECTOR ─── */
+    .car-options {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+      margin-top: 4px;
+    }
+    @media (max-width: 580px) { .car-options { grid-template-columns: repeat(2,1fr); } }
+
+    .car-opt {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--input-bg);
+      padding: 14px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .car-opt:hover { border-color: var(--gold); }
+    .car-opt.selected {
+      border-color: var(--gold);
+      background: rgba(212,160,23,0.08);
+    }
+    .car-opt .icon { font-size: 1.6rem; margin-bottom: 6px; }
+    .car-opt .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+    .car-opt.selected .label { color: var(--gold); }
+
+    /* ─── SUMMARY BAR ─── */
+    .summary-bar {
+      display: flex; gap: 20px; flex-wrap: wrap;
+      background: rgba(212,160,23,0.06);
+      border: 1px solid rgba(212,160,23,0.2);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-top: 32px;
+      font-size: 0.82rem;
+    }
+    .summary-item strong { color: var(--gold); display: block; font-size: 0.68rem; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 2px; }
+
+    /* ─── SUBMIT ─── */
+    .btn-row {
+      display: flex; justify-content: flex-end; gap: 12px;
+      margin-top: 36px;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem; letter-spacing: 1px;
+      padding: 14px 28px; border-radius: var(--radius);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--muted); color: var(--text); }
+
+    .btn-submit {
+      background: var(--gold);
+      border: none;
+      color: #0a0a0b;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.05rem; letter-spacing: 2px;
+      padding: 14px 36px; border-radius: var(--radius);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 4px 24px rgba(212,160,23,0.25);
+      width: 100%;
+    }
+    .btn-submit.auto-width {
+        width: auto;
+    }
+    .btn-submit:hover {
+      background: var(--gold-light);
+      box-shadow: 0 6px 32px rgba(212,160,23,0.4);
+      transform: translateY(-1px);
+    }
+    .btn-submit:active { transform: translateY(0); }
+
+    /* ─── SUCCESS ─── */
+    .success {
+      display: none; text-align: center; padding: 60px 20px;
+    }
+    .success-icon {
+      width: 72px; height: 72px;
+      border: 2px solid var(--gold);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; margin: 0 auto 24px;
+      animation: pop 0.4s ease;
+    }
+    @keyframes pop {
+      from { transform: scale(0.5); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .success h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem; letter-spacing: 2px;
+      color: var(--gold); margin-bottom: 10px;
+    }
+    .success p { color: var(--muted); font-size: 0.9rem; }
+    .booking-id {
+      display: inline-block;
+      margin-top: 18px;
+      background: rgba(212,160,23,0.1);
+      border: 1px solid rgba(212,160,23,0.3);
+      color: var(--gold);
+      padding: 8px 20px; border-radius: 50px;
+      font-size: 0.85rem; letter-spacing: 2px;
+      font-family: monospace;
+    }
+
+    /* ─── ANIMATE IN ─── */
+    .card { animation: slideUp 0.5s ease both; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<div class="wrapper">
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">Drive<span>X</span></div>
+    <div class="nav-links">
+      <button class="nav-tag active" id="navBooking" onclick="switchTab('booking')">Book a Car</button>
+      <button class="nav-tag" id="navFeedback" onclick="switchTab('feedback')">Leave Feedback</button>
+    </div>
+  </nav>
+
+  <!-- =============================== -->
+  <!--       BOOKING SECTION           -->
+  <!-- =============================== -->
+  <div id="bookingSection">
+      <!-- HERO -->
+      <div class="hero">
+        <h1>Book Your<em>Ride.</em></h1>
+        <p>Reserve a premium vehicle in minutes. Fast confirmation, flexible pickup, zero hassle.</p>
+      </div>
+
+      <!-- STEP INDICATORS -->
+      <div class="steps">
+        <div class="step active" id="s1"></div>
+        <div class="step" id="s2"></div>
+        <div class="step" id="s3"></div>
+      </div>
+
+      <!-- FORM CARD -->
+      <div class="card" id="formCard">
+
+        <!-- CAR TYPE -->
+        <div class="section-label">Vehicle Type</div>
+        <div class="car-options">
+          <div class="car-opt selected" onclick="selectCar(this,'Sedan')">
+            <div class="icon">🚗</div>
+            <div class="label">Sedan</div>
+          </div>
+          <div class="car-opt" onclick="selectCar(this,'SUV')">
+            <div class="icon">🚙</div>
+            <div class="label">SUV</div>
+          </div>
+          <div class="car-opt" onclick="selectCar(this,'Luxury')">
+            <div class="icon">🏎️</div>
+            <div class="label">Luxury</div>
+          </div>
+          <div class="car-opt" onclick="selectCar(this,'Van')">
+            <div class="icon">🚐</div>
+            <div class="label">Van</div>
+          </div>
+        </div>
+
+        <!-- PERSONAL INFO -->
+        <div class="section-label">Personal Details</div>
+        <div class="grid-2">
+          <div class="field">
+            <label>First Name</label>
+            <input type="text" id="fname" placeholder="Vikash" />
+          </div>
+          <div class="field">
+            <label>Last Name</label>
+            <input type="text" id="lname" placeholder="Kumawat" />
+          </div>
+          <div class="field">
+            <label>Email Address</label>
+            <input type="email" id="email" placeholder="you@example.com" />
+          </div>
+          <div class="field">
+            <label>Phone Number</label>
+            <input type="tel" id="phone" placeholder="+91 98765 43210" />
+          </div>
+        </div>
+
+        <!-- BOOKING DETAILS -->
+        <div class="section-label">Booking Details</div>
+        <div class="grid-3">
+          <div class="field">
+            <label>Pickup Date</label>
+            <input type="date" id="pickup" />
+          </div>
+          <div class="field">
+            <label>Return Date</label>
+            <input type="date" id="dropoff" />
+          </div>
+          <div class="field">
+            <label>Pickup Time</label>
+            <input type="time" id="ptime" />
+          </div>
+          <div class="field span-2">
+            <label>Pickup Location</label>
+            <input type="text" id="location" placeholder="Airport, hotel, or address…" />
+          </div>
+          <div class="field">
+            <label>Driver's License</label>
+            <input type="text" id="license" placeholder="DL-1234567890" />
+          </div>
+        </div>
+
+        <!-- ADD-ONS -->
+        <div class="section-label">Add-Ons</div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Extra Driver</label>
+            <select id="extraDriver">
+              <option value="no">No</option>
+              <option value="yes">Yes (+₹500/day)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Insurance Plan</label>
+            <select id="insurance">
+              <option value="basic">Basic (Included)</option>
+              <option value="full">Full Coverage (+₹300/day)</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+          <div class="field span-2">
+            <label>Special Requests</label>
+            <textarea id="notes" placeholder="Child seat, GPS, specific model preference…"></textarea>
+          </div>
+        </div>
+
+        <!-- LIVE SUMMARY -->
+        <div class="summary-bar" id="summaryBar">
+          <div class="summary-item"><strong>Type</strong><span id="sumType">Sedan</span></div>
+          <div class="summary-item"><strong>Pickup</strong><span id="sumPickup">—</span></div>
+          <div class="summary-item"><strong>Return</strong><span id="sumDrop">—</span></div>
+          <div class="summary-item"><strong>Duration</strong><span id="sumDays">—</span></div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="btn-row">
+          <button class="btn-outline" onclick="resetForm()">Clear</button>
+          <button class="btn-submit auto-width" onclick="submitForm()">CONFIRM BOOKING →</button>
+        </div>
+
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="card success" id="successCard">
+        <div class="success-icon">✓</div>
+        <h2>Booking Confirmed!</h2>
+        <p>We'll send your confirmation to your email shortly.</p>
+        <div class="booking-id" id="bookingId">BKG-000000</div>
+        <br/><br/>
+        <button class="btn-submit auto-width" onclick="resetForm()" style="margin-top:10px;">BOOK ANOTHER</button>
+      </div>
+  </div>
+
+
+  <!-- =============================== -->
+  <!--       FEEDBACK SECTION          -->
+  <!-- =============================== -->
+  <div id="feedbackSection" style="display: none;">
+      <div class="hero" style="text-align: center; margin-bottom: 30px;">
+        <h1>Leave <em>Feedback.</em></h1>
+        <p style="margin: 18px auto 0;">How was your experience with DriveX? Let us know!</p>
+      </div>
+
+      <div class="card centered">
+        <div id="feedbackForm">
+          <div class="field">
+            <label>Booking Reference</label>
+            <input type="text" id="booking_ref" placeholder="e.g. BKG-123456">
+          </div>
+          
+          <div class="field">
+            <label>Rating (1-5)</label>
+            <select id="rating">
+              <option value="5">5 - Excellent 🌟🌟🌟🌟🌟</option>
+              <option value="4">4 - Very Good 🌟🌟🌟🌟</option>
+              <option value="3">3 - Average 🌟🌟🌟</option>
+              <option value="2">2 - Poor 🌟🌟</option>
+              <option value="1">1 - Terrible 🌟</option>
+            </select>
+          </div>
+      
+          <div class="field">
+            <label>Comments</label>
+            <textarea id="comments" rows="4" placeholder="Tell us about your experience..."></textarea>
+          </div>
+      
+          <button class="btn-submit" style="margin-top: 15px;" onclick="submitFeedback()">SUBMIT FEEDBACK</button>
+        </div>
+      </div>
+  </div>
+
+</div>
+
+
+<script>
+  // ── TAB SWITCHING LOGIC ──
+  function switchTab(tab) {
+    const bookingSec = document.getElementById('bookingSection');
+    const feedbackSec = document.getElementById('feedbackSection');
+    const navBooking = document.getElementById('navBooking');
+    const navFeedback = document.getElementById('navFeedback');
+
+    if (tab === 'booking') {
+      bookingSec.style.display = 'block';
+      feedbackSec.style.display = 'none';
+      navBooking.classList.add('active');
+      navFeedback.classList.remove('active');
+    } else {
+      bookingSec.style.display = 'none';
+      feedbackSec.style.display = 'block';
+      navFeedback.classList.add('active');
+      navBooking.classList.remove('active');
+    }
+  }
+
+  // ── BOOKING LOGIC ──
+  let selectedCar = 'Sedan';
+
+  function selectCar(el, type) {
+    document.querySelectorAll('.car-opt').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedCar = type;
+    document.getElementById('sumType').textContent = type;
+    updateSteps();
+  }
+
+  ['pickup','dropoff'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => {
+      const p = document.getElementById('pickup').value;
+      const d = document.getElementById('dropoff').value;
+      document.getElementById('sumPickup').textContent = p ? formatDate(p) : '—';
+      document.getElementById('sumDrop').textContent   = d ? formatDate(d) : '—';
+      if (p && d) {
+        const diff = (new Date(d) - new Date(p)) / 86400000;
+        document.getElementById('sumDays').textContent = diff > 0 ? diff + ' day' + (diff>1?'s':'') : '—';
+      }
+      updateSteps();
+    });
+  });
+
+  function formatDate(s) {
+    const [y,m,d] = s.split('-');
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${d} ${months[+m-1]}`;
+  }
+
+  function updateSteps() {
+    const p = document.getElementById('pickup').value;
+    const d = document.getElementById('dropoff').value;
+    const f = document.getElementById('fname').value;
+    document.getElementById('s1').classList.add('active');
+    document.getElementById('s2').classList.toggle('active', !!(p && d));
+    document.getElementById('s2').classList.toggle('done',   !!(p && d));
+    document.getElementById('s3').classList.toggle('active', !!(p && d && f));
+  }
+
+  document.getElementById('fname').addEventListener('input', updateSteps);
+
+  function submitForm() {
+    const required = ['fname','lname','email','phone','pickup','dropoff','location','license'];
+    let valid = true;
+    required.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) {
+        el.style.borderColor = '#c0392b';
+        el.style.boxShadow   = '0 0 0 3px rgba(192,57,43,0.15)';
+        valid = false;
+        setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 2500);
+      }
+    });
+    if (!valid) return;
+
+    const pickup  = new Date(document.getElementById('pickup').value);
+    const dropoff = new Date(document.getElementById('dropoff').value);
+    if (dropoff <= pickup) {
+      alert('Return date must be after pickup date.');
+      return;
+    }
+
+    const bookingData = {
+      car_type:     selectedCar,
+      first_name:   document.getElementById('fname').value,
+      last_name:    document.getElementById('lname').value,
+      email:        document.getElementById('email').value,
+      phone:        document.getElementById('phone').value,
+      pickup_date:  document.getElementById('pickup').value,
+      return_date:  document.getElementById('dropoff').value,
+      pickup_time:  document.getElementById('ptime').value,
+      location:     document.getElementById('location').value,
+      license:      document.getElementById('license').value,
+      extra_driver: document.getElementById('extraDriver').value,
+      insurance:    document.getElementById('insurance').value,
+      notes:        document.getElementById('notes').value
+    };
+
+    fetch('http://127.0.0.1:5000/book', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(bookingData)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('formCard').style.display = 'none';
+        const sc = document.getElementById('successCard');
+        sc.style.display   = 'block';
+        sc.style.animation = 'slideUp 0.5s ease both';
+        document.getElementById('bookingId').textContent = data.booking_ref;
+        ['s1','s2','s3'].forEach(s =>
+          document.getElementById(s).classList.add('active','done')
+        );
+        
+        // Automatically prefill the feedback form with the new booking ID
+        document.getElementById('booking_ref').value = data.booking_ref;
+      }
+    })
+    .catch(err => {
+      alert('Error: Is Flask running? Check terminal.');
+      console.error(err);
+    });
+  }
+
+  function resetForm() {
+    document.getElementById('formCard').style.display = 'block';
+    document.getElementById('successCard').style.display = 'none';
+    document.getElementById('formCard').querySelectorAll('input,select,textarea').forEach(el => el.value = '');
+    selectCar(document.querySelectorAll('.car-opt')[0], 'Sedan');
+    ['sumPickup','sumDrop','sumDays'].forEach(id => document.getElementById(id).textContent = '—');
+    ['s1','s2','s3'].forEach(s => {
+      document.getElementById(s).classList.remove('done','active');
+    });
+    document.getElementById('s1').classList.add('active');
+  }
+
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('pickup').min  = today;
+  document.getElementById('dropoff').min = today;
+
+  // ── FEEDBACK LOGIC ──
+  function submitFeedback() {
+    const data = {
+      booking_ref: document.getElementById('booking_ref').value,
+      rating: document.getElementById('rating').value,
+      comments: document.getElementById('comments').value
+    };
+
+    if (!data.booking_ref.trim()) {
+        alert("Please enter a booking reference.");
+        return;
+    }
+
+    fetch('http://127.0.0.1:5000/submit-feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if(data.success) {
+        alert("Thank you for your feedback!");
+        // Clear the feedback form
+        document.getElementById('booking_ref').value = '';
+        document.getElementById('rating').value = '5';
+        document.getElementById('comments').value = '';
+        // Redirect back to booking tab
+        switchTab('booking');
+      } else {
+        alert("Error: " + data.error);
+      }
+    })
+    .catch(err => {
+        alert('Error: Could not submit feedback. Is Flask running?');
+        console.error(err);
+    });
+  }
+</script>
+</body>
+</html>
