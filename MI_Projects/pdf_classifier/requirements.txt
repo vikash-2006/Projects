@@ -1,0 +1,6 @@
+pdfplumber
+pypdf
+pandas
+nltk
+scikit-learn
+reportlab
