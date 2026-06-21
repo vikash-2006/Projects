@@ -1,0 +1,429 @@
+/* ============================================
+   MITTI — subscribe.css
+   Plant Adoption / Subscribe Page Styles
+   Load AFTER style.css and components.css
+   ============================================ */
+
+/* ── Page Hero ── */
+.subscribe-hero {
+    background: var(--moss);
+    padding: 8rem 4rem 6rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .subscribe-hero::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(181,204,154,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .subscribe-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0; right: 0;
+    height: 64px;
+    background: var(--cream);
+    clip-path: ellipse(55% 100% at 50% 100%);
+  }
+  
+  /* Hero eyebrow label */
+  .subscribe-hero .section-label {
+    color: var(--leaf);
+    justify-content: center;
+  }
+  .subscribe-hero .section-label::before { background: var(--leaf); }
+  
+  /* Hero headline */
+  .subscribe-hero .section-heading {
+    color: var(--sand);
+    max-width: 680px;
+    margin: 0.8rem auto 1.2rem;
+  }
+  .subscribe-hero .section-heading em { color: var(--leaf); }
+  
+  /* Hero sub-text */
+  .subscribe-hero .hero-desc {
+    font-size: 1rem;
+    color: rgba(240,230,211,0.72);
+    line-height: 1.8;
+    max-width: 540px;
+    margin: 0 auto;
+  }
+  
+  /* ── How It Works strip ── */
+  .how-it-works {
+    padding: 5rem 4rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .how-it-works .section-eyebrow { margin-bottom: 0.6rem; }
+  .how-it-works .section-title   { margin-bottom: 0.6rem; }
+  .how-it-works .section-desc    { margin-bottom: 3rem; }
+  
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+  .step-card {
+    background: var(--sand);
+    border-radius: var(--radius-lg);
+    padding: 2.2rem 1.6rem 2rem;
+    text-align: center;
+    transition: var(--transition);
+    position: relative;
+  }
+  .step-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 48px rgba(44,26,14,0.10);
+  }
+  .step-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--terracotta);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: var(--transition);
+  }
+  .step-card:hover::before { transform: scaleX(1); }
+  
+  .step-icon {
+    font-size: 2.6rem;
+    display: block;
+    margin-bottom: 1rem;
+    line-height: 1;
+  }
+  .step-label {
+    display: inline-block;
+    font-size: 0.65rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    margin-bottom: 0.6rem;
+  }
+  .step-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: var(--soil);
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+  .step-desc {
+    font-size: 0.82rem;
+    color: var(--ash);
+    line-height: 1.65;
+  }
+  
+  /* ── Plans section ── */
+  .plans-section {
+    padding: 2rem 4rem 7rem;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+  .plans-header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+  }
+  .plans-header .section-title  { margin-bottom: 0.6rem; }
+  .plans-header .section-desc   { max-width: 480px; margin: 0 auto; }
+  
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.8rem;
+    align-items: start;
+  }
+  
+  /* ── Plan card ── */
+  .plan-card {
+    background: var(--sand);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: var(--transition);
+    border: 2px solid transparent;
+    position: relative;
+  }
+  .plan-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 28px 56px rgba(44,26,14,0.13);
+  }
+  
+  /* Featured (Most Popular) card */
+  .plan-card--featured {
+    border-color: var(--terracotta);
+    background: var(--cream);
+  }
+  .plan-card--featured:hover {
+    box-shadow: 0 28px 56px rgba(194,98,45,0.20);
+  }
+  
+  /* Popular badge */
+  .plan-badge {
+    display: inline-block;
+    background: var(--terracotta);
+    color: var(--cream);
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.28rem 0.9rem;
+    border-radius: var(--radius-pill);
+    margin-bottom: 1.2rem;
+  }
+  
+  /* Card image area */
+  .plan-card-img {
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    position: relative;
+  }
+  .plan-card-img--seedling { background: linear-gradient(135deg, #D4E8CC, #B8D9A8); }
+  .plan-card-img--grower   { background: linear-gradient(135deg, #C8E4C0, #90C87A); }
+  .plan-card-img--farmer   { background: linear-gradient(135deg, #4A6741, #2C4228); }
+  
+  /* Card body */
+  .plan-card-body { padding: 1.8rem 1.8rem 2rem; }
+  
+  .plan-name {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--soil);
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .plan-icon { font-size: 1.4rem; }
+  
+  .plan-tagline {
+    font-size: 0.82rem;
+    color: var(--ash);
+    line-height: 1.55;
+    margin-bottom: 1.2rem;
+  }
+  
+  .plan-price {
+    font-family: var(--font-display);
+    font-size: 2.6rem;
+    font-weight: 300;
+    color: var(--terracotta);
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+  .plan-price sup  { font-size: 1.3rem; vertical-align: super; }
+  .plan-price span { font-size: 0.9rem; color: var(--ash); font-weight: 300; }
+  
+  .plan-divider {
+    width: 40px; height: 1px;
+    background: rgba(44,26,14,0.12);
+    margin: 1.2rem 0;
+  }
+  
+  /* Feature list */
+  .plan-features {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1.8rem;
+  }
+  .plan-feat {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    font-size: 0.85rem;
+    color: var(--ash);
+    line-height: 1.45;
+  }
+  .plan-feat::before {
+    content: '✓';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px; height: 18px;
+    background: var(--leaf);
+    color: var(--moss);
+    border-radius: 50%;
+    font-size: 0.65rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .plan-card--featured .plan-feat::before {
+    background: var(--terracotta);
+    color: var(--cream);
+  }
+  
+  /* CTA button */
+  .plan-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+    border-radius: var(--radius-pill);
+    border: 1.5px solid var(--soil);
+    background: transparent;
+    color: var(--soil);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition);
+    font-weight: 400;
+  }
+  .plan-btn:hover {
+    background: var(--soil);
+    color: var(--cream);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(44,26,14,0.18);
+  }
+  .plan-btn--primary {
+    background: var(--terracotta);
+    border-color: var(--terracotta);
+    color: var(--cream);
+  }
+  .plan-btn--primary:hover {
+    background: var(--soil);
+    border-color: var(--soil);
+  }
+  
+  /* ── Trust strip ── */
+  .trust-strip {
+    background: var(--soil);
+    padding: 4rem;
+  }
+  .trust-strip-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    text-align: center;
+  }
+  .trust-item-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 0.7rem;
+  }
+  .trust-item-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--sand);
+    margin-bottom: 0.3rem;
+  }
+  .trust-item-desc {
+    font-size: 0.78rem;
+    color: rgba(240,230,211,0.55);
+    line-height: 1.6;
+  }
+  
+  /* ── FAQ strip ── */
+  .faq-section {
+    padding: 6rem 4rem;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .faq-section .section-title  { text-align: center; margin-bottom: 0.5rem; }
+  .faq-section .section-eyebrow { display: block; text-align: center; margin-bottom: 0.5rem; }
+  .faq-section .section-desc   { text-align: center; margin-bottom: 3rem; }
+  
+  .faq-list { display: flex; flex-direction: column; gap: 0; }
+  
+  .faq-item {
+    border-bottom: 1px solid var(--sand);
+  }
+  .faq-item:first-child { border-top: 1px solid var(--sand); }
+  
+  .faq-question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    gap: 1rem;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: var(--soil);
+    transition: color var(--transition);
+  }
+  .faq-question:hover { color: var(--terracotta); }
+  .faq-question-icon {
+    font-size: 1.1rem;
+    color: var(--terracotta);
+    flex-shrink: 0;
+    transition: transform var(--transition);
+    line-height: 1;
+  }
+  .faq-item.open .faq-question-icon { transform: rotate(45deg); }
+  .faq-answer {
+    font-size: 0.88rem;
+    color: var(--ash);
+    line-height: 1.8;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+    padding-bottom: 0;
+  }
+  .faq-item.open .faq-answer {
+    max-height: 200px;
+    padding-bottom: 1.2rem;
+  }
+  
+  /* ── CTA Bottom ── */
+  .subscribe-cta {
+    background: var(--sand);
+    padding: 7rem 4rem;
+    text-align: center;
+  }
+  .subscribe-cta .section-title { margin-bottom: 0.6rem; }
+  .subscribe-cta .section-title em { color: var(--moss); }
+  .subscribe-cta .section-desc  { margin: 0 auto 2.5rem; max-width: 480px; }
+  .subscribe-cta .cta-actions   { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  
+  /* ── Responsive ── */
+  @media (max-width: 1100px) {
+    .plans-grid    { grid-template-columns: repeat(2, 1fr); }
+    .steps-grid    { grid-template-columns: repeat(2, 1fr); }
+    .trust-strip-inner { grid-template-columns: repeat(2, 1fr); }
+  }
+  
+  @media (max-width: 900px) {
+    .subscribe-hero { padding: 6rem 2rem 5rem; }
+    .how-it-works   { padding: 4rem 2rem 3rem; }
+    .plans-section  { padding: 2rem 2rem 5rem; }
+    .trust-strip    { padding: 3rem 2rem; }
+    .faq-section    { padding: 4rem 2rem; }
+    .subscribe-cta  { padding: 5rem 2rem; }
+  }
+  
+  @media (max-width: 680px) {
+    .plans-grid  { grid-template-columns: 1fr; }
+    .steps-grid  { grid-template-columns: 1fr 1fr; }
+    .trust-strip-inner { grid-template-columns: 1fr 1fr; }
+  }
+  
+  @media (max-width: 480px) {
+    .steps-grid        { grid-template-columns: 1fr; }
+    .trust-strip-inner { grid-template-columns: 1fr; }
+  }

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact & Reserve — MITTI The Living Soil Cafe | Jaipur</title>
+  <meta name="description" content="Reserve a table, book a corporate offsite, adopt a plant, or just say hello. MITTI Cafe, C-12 C-Scheme, Jaipur." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<main id="main-content">
+  <div class="page-wrapper">
+
+    <!-- CONTACT HERO -->
+    <section class="contact-hero">
+      <div class="section-label fade-in" style="justify-content:center">Come Find Us</div>
+      <h1 class="section-heading fade-in fade-in-delay-1" style="margin:1rem auto;max-width:550px;text-align:center">
+        Let's grow<br><em>something together</em>
+      </h1>
+      <p style="color:var(--ash);max-width:480px;margin:0 auto;font-size:0.92rem;text-align:center" class="fade-in fade-in-delay-2">
+        Reserve a table, book a corporate offsite, enquire about school trips, or adopt a plant. We'd love to hear from you.
+      </p>
+    </section>
+
+    <!-- CONTACT GRID -->
+    <div class="contact-page">
+
+      <!-- LEFT: Info -->
+      <div>
+        <div class="contact-info">
+          <div class="contact-block fade-in">
+            <div class="contact-block-icon">📍</div>
+            <div>
+              <div class="contact-block-label">Location</div>
+              <div class="contact-block-value">C-12, C-Scheme, Jaipur</div>
+              <div class="contact-block-sub">Rajasthan 302001 — Near SMS Hospital</div>
+            </div>
+          </div>
+          <div class="contact-block fade-in fade-in-delay-1">
+            <div class="contact-block-icon">📞</div>
+            <div>
+              <div class="contact-block-label">Phone</div>
+              <div class="contact-block-value">+91 141 234 5678</div>
+              <div class="contact-block-sub">WhatsApp: +91 98765 43210</div>
+            </div>
+          </div>
+          <div class="contact-block fade-in fade-in-delay-2">
+            <div class="contact-block-icon" style="background:var(--moss)">✉️</div>
+            <div>
+              <div class="contact-block-label">Email</div>
+              <div class="contact-block-value">hello@mitti.cafe</div>
+              <div class="contact-block-sub">Corporate: corporate@mitti.cafe</div>
+            </div>
+          </div>
+          <div class="contact-block fade-in fade-in-delay-3">
+            <div class="contact-block-icon" style="background:var(--gold)">🌱</div>
+            <div>
+              <div class="contact-block-label">Plant Adoptions</div>
+              <div class="contact-block-value">plants@mitti.cafe</div>
+              <div class="contact-block-sub">For existing subscribers, track via the plant dashboard</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hours — rendered dynamically by JS -->
+        <div class="contact-hours fade-in fade-in-delay-2">
+          <h4>Opening Hours</h4>
+          <div id="hoursRows"></div>
+          <div id="todayStatus" style="margin-top:0.8rem;font-size:0.78rem;"></div>
+        </div>
+
+        <!-- Quick Links -->
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem" class="fade-in fade-in-delay-3">
+          <a href="#" class="social-icon" aria-label="Instagram" style="width:auto;border-radius:var(--radius-pill);padding:0.5rem 1rem;gap:0.5rem;font-size:0.8rem;display:flex;align-items:center;border:1.5px solid var(--sand);color:var(--ash)">📸 Instagram</a>
+          <a href="#" class="social-icon" aria-label="Facebook" style="width:auto;border-radius:var(--radius-pill);padding:0.5rem 1rem;gap:0.5rem;font-size:0.8rem;display:flex;align-items:center;border:1.5px solid var(--sand);color:var(--ash)">📘 Facebook</a>
+          <a href="#" class="social-icon" aria-label="YouTube" style="width:auto;border-radius:var(--radius-pill);padding:0.5rem 1rem;gap:0.5rem;font-size:0.8rem;display:flex;align-items:center;border:1.5px solid var(--sand);color:var(--ash)">▶️ YouTube</a>
+        </div>
+      </div>
+
+      <!-- RIGHT: Form -->
+      <div id="reserve">
+        <div class="contact-form fade-in fade-in-delay-1">
+          <h3>Make a Reservation</h3>
+          <p>Fill in the form and we'll confirm within 2 hours. For large groups (10+), corporate offsites, or school bookings, use the "Enquiry Type" dropdown.</p>
+
+          <div id="formContent">
+            <div class="form-group form-row">
+              <div>
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" placeholder="Arjun" />
+              </div>
+              <div>
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" placeholder="Singhvi" />
+              </div>
+            </div>
+
+            <div class="form-group form-row">
+              <div>
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="hello@example.com" />
+              </div>
+              <div>
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" placeholder="+91 98765 43210" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="enquiryType">Enquiry Type</label>
+              <select id="enquiryType">
+                <option value="">Select a type...</option>
+                <option value="table">Table Reservation (Dine-in)</option>
+                <option value="corporate">Corporate Offsite (₹800/person)</option>
+                <option value="school">School / College Field Trip</option>
+                <option value="plant">Plant Adoption Subscription</option>
+                <option value="soilkit">MITTI Soil Kit Order</option>
+                <option value="harvest">Harvest Your Meal Add-on</option>
+                <option value="other">General Enquiry</option>
+              </select>
+            </div>
+
+            <div class="form-group form-row">
+              <div>
+                <label for="date">Preferred Date</label>
+                <input type="date" id="date" />
+              </div>
+              <div>
+                <label for="guests">Number of Guests</label>
+                <input type="number" id="guests" min="1" max="200" placeholder="2" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="message">Message / Special Requests</label>
+              <textarea id="message" placeholder="Tell us anything — dietary needs, occasion, seating preferences, what you're celebrating..."></textarea>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+              <button class="btn-primary" onclick="submitForm()">🌿 Send Reservation Request</button>
+              <p style="font-size:0.75rem;color:var(--ash)">We reply within 2 hours (8am–9pm)</p>
+            </div>
+          </div>
+
+          <div class="form-success" id="formSuccess">
+            <div class="success-icon">🌱</div>
+            <h4>Your request is planted!</h4>
+            <p>We'll confirm your reservation within 2 hours. Check your email for a confirmation. See you at the farm!</p>
+            <br>
+            <a href="menu.html" class="btn-primary" style="display:inline-flex">🌿 Browse This Week's Menu</a>
+          </div>
+        </div>
+
+        <!-- Corporate / School CTA -->
+        <div style="background:var(--soil);border-radius:var(--radius-lg);padding:2rem;margin-top:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem" class="fade-in fade-in-delay-2">
+          <div style="display:flex;flex-direction:column;gap:0.5rem;padding:1.2rem;background:rgba(240,230,211,0.06);border-radius:var(--radius-md);border:1px solid rgba(240,230,211,0.1)">
+            <span style="font-size:1.6rem">🏢</span>
+            <strong style="color:var(--sand);font-size:0.92rem">Corporate Offsites</strong>
+            <p style="font-size:0.78rem;color:rgba(240,230,211,0.6)">Min 10 people. Farm workshop + curated meal. ₹800/person</p>
+            <a href="mailto:corporate@mitti.cafe" style="font-size:0.75rem;color:var(--clay)">corporate@mitti.cafe →</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.5rem;padding:1.2rem;background:rgba(240,230,211,0.06);border-radius:var(--radius-md);border:1px solid rgba(240,230,211,0.1)">
+            <span style="font-size:1.6rem">🏫</span>
+            <strong style="color:var(--sand);font-size:0.92rem">School Field Trips</strong>
+            <p style="font-size:0.78rem;color:rgba(240,230,211,0.6)">Groups of 15–80. Hydroponic science session + meal</p>
+            <a href="mailto:hello@mitti.cafe" style="font-size:0.75rem;color:var(--clay)">hello@mitti.cafe →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAP SECTION -->
+    <div class="map-section">
+      <div class="section-label fade-in" style="margin-bottom:1.5rem">Find Us</div>
+      <div class="map-container">
+        <div class="map-placeholder">
+          <div class="map-pin">📍</div>
+          <h3>MITTI Cafe — C-Scheme, Jaipur</h3>
+          <p>C-12, C-Scheme, Jaipur, Rajasthan 302001<br>Near SMS Hospital • Pink City Heritage Area</p>
+          <a href="https://maps.google.com/?q=C-Scheme+Jaipur+Rajasthan" target="_blank">Open in Google Maps →</a>
+        </div>
+      </div>
+      <p style="font-size:0.8rem;color:var(--ash);margin-top:1rem;text-align:center">
+        🚗 Free parking available on-premises · 🚌 Bus stop: C-Scheme Bus Stand (2 min walk) · 🛺 Auto-rickshaws easily available
+      </p>
+    </div>
+
+    <!-- NEWSLETTER / SUBSCRIBE BAND -->
+    <section style="background:var(--terracotta);padding:5rem 4rem;text-align:center">
+      <div style="max-width:600px;margin:0 auto">
+        <div class="section-label fade-in" style="justify-content:center;color:rgba(250,246,239,0.7)">Stay in the Loop</div>
+        <h2 class="section-heading fade-in fade-in-delay-1" style="color:var(--cream);margin-bottom:1rem">Get weekly harvest<br><em style="color:var(--leaf)">updates</em></h2>
+        <p style="color:rgba(250,246,239,0.75);margin-bottom:2rem;font-size:0.92rem" class="fade-in fade-in-delay-2">Every Monday we send out what's ready in the towers, what's on the menu, and what's being planted next. No spam. Just soil.</p>
+        <div style="display:flex;gap:0.8rem;justify-content:center;flex-wrap:wrap" class="fade-in fade-in-delay-3">
+          <input type="email" placeholder="your@email.com" style="padding:0.85rem 1.5rem;border-radius:var(--radius-pill);border:none;background:rgba(250,246,239,0.15);color:var(--cream);font-family:var(--font-body);font-size:0.9rem;outline:none;min-width:260px;backdrop-filter:blur(8px)" />
+          <button onclick="subscribeNewsletter(this)" style="padding:0.85rem 2rem;border-radius:var(--radius-pill);background:var(--cream);color:var(--terracotta);border:none;font-family:var(--font-body);font-size:0.82rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:0.3s;font-weight:500">🌱 Subscribe</button>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- end page-wrapper -->
+</main>
+
+<script src="js/components.js"></script>
+<!-- <script src="js/main.js"></script> -->
+<script>
+
+  // ══════════════════════════════════════════
+  //  DYNAMIC OPENING HOURS
+  // ══════════════════════════════════════════
+  (function renderHours() {
+    // Schedule: index 0 = Sunday, 1 = Monday … 6 = Saturday (matches JS Date.getDay())
+    const schedule = [
+      { day: 'Sunday',    open: '9:00 am',  close: '10:00 pm', closed: false },
+      { day: 'Monday',    open: '8:00 am',  close: '9:00 pm',  closed: false },
+      { day: 'Tuesday',   open: '8:00 am',  close: '9:00 pm',  closed: false },
+      { day: 'Wednesday', open: '8:00 am',  close: '9:00 pm',  closed: false },
+      { day: 'Thursday',  open: '8:00 am',  close: '9:00 pm',  closed: false },
+      { day: 'Friday',    open: '8:00 am',  close: '9:00 pm',  closed: false },
+      { day: 'Saturday',  open: '8:00 am',  close: '10:00 pm', closed: false },
+    ];
+
+    const now       = new Date();
+    const todayIdx  = now.getDay();   // 0–6
+    const container = document.getElementById('hoursRows');
+    const statusEl  = document.getElementById('todayStatus');
+
+    // Reorder: start from Monday (index 1) so Mon appears first, Sun last
+    const ordered = [1, 2, 3, 4, 5, 6, 0].map(i => ({ ...schedule[i], index: i }));
+
+    ordered.forEach(({ day, open, close, closed, index }) => {
+      const isToday = index === todayIdx;
+      const row     = document.createElement('div');
+      row.className = 'hours-row' + (isToday ? ' today' : '');
+
+      const dayLabel = isToday ? `${day} ← Today` : day;
+      const timeLabel = closed
+        ? 'Closed'
+        : isToday
+          ? `${open} – ${close} ✓ Open`
+          : `${open} – ${close}`;
+
+      row.innerHTML = `
+        <span class="hours-day">${dayLabel}</span>
+        <span class="hours-time">${timeLabel}</span>
+      `;
+      container.appendChild(row);
+    });
+
+    // Show live open/closed status
+    const todayEntry  = schedule[todayIdx];
+    const [openH, openM]   = to24h(todayEntry.open);
+    const [closeH, closeM] = to24h(todayEntry.close);
+    const nowMins     = now.getHours() * 60 + now.getMinutes();
+    const openMins    = openH  * 60 + openM;
+    const closeMins   = closeH * 60 + closeM;
+    const isOpen      = !todayEntry.closed && nowMins >= openMins && nowMins < closeMins;
+    const minsToClose = closeMins - nowMins;
+    const minsToOpen  = openMins  - nowMins;
+
+    if (todayEntry.closed) {
+      statusEl.innerHTML = `<span style="color:#E07A5A">● Closed today</span>`;
+    } else if (isOpen) {
+      const closing = minsToClose < 60
+        ? `Closes in ${minsToClose} min`
+        : `Closes at ${todayEntry.close}`;
+      statusEl.innerHTML = `<span style="color:#8FB87A">● We're open right now</span> <span style="color:#9B9082">· ${closing}</span>`;
+    } else if (nowMins < openMins) {
+      statusEl.innerHTML = `<span style="color:#E07A5A">● Not open yet</span> <span style="color:#9B9082">· Opens at ${todayEntry.open}</span>`;
+    } else {
+      // Past closing time
+      const tomorrow   = schedule[(todayIdx + 1) % 7];
+      statusEl.innerHTML = `<span style="color:#E07A5A">● Closed for today</span> <span style="color:#9B9082">· Opens tomorrow at ${tomorrow.open}</span>`;
+    }
+  })();
+
+  // Helper: "8:00 am" → [8, 0],  "10:00 pm" → [22, 0]
+  function to24h(timeStr) {
+    const [time, period] = timeStr.trim().split(' ');
+    let [h, m]           = time.split(':').map(Number);
+    if (period === 'pm' && h !== 12) h += 12;
+    if (period === 'am' && h === 12) h = 0;
+    return [h, m];
+  }
+
+
+  // ══════════════════════════════════════════
+  //  RESERVATION FORM
+  // ══════════════════════════════════════════
+  async function submitForm() {
+    const required = ['firstName', 'email', 'enquiryType'];
+    let valid = true;
+
+    required.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el || !el.value.trim()) {
+        if (el) {
+          el.style.borderColor = 'var(--terracotta)';
+          setTimeout(() => el.style.borderColor = '', 2000);
+        }
+        valid = false;
+      }
+    });
+
+    if (!valid) return;
+
+    const payload = {
+      firstName:     document.getElementById('firstName')?.value.trim(),
+      lastName:      document.getElementById('lastName')?.value.trim(),
+      email:         document.getElementById('email')?.value.trim(),
+      phone:         document.getElementById('phone')?.value.trim(),
+      enquiryType:   document.getElementById('enquiryType')?.value,
+      preferredDate: document.getElementById('date')?.value,
+      numGuests:     document.getElementById('guests')?.value,
+      message:       document.getElementById('message')?.value.trim(),
+    };
+
+    // Attach auth token if user is logged in
+    const token = localStorage.getItem('mitti_token') || '';
+
+    const btn = document.querySelector('.btn-primary[onclick="submitForm()"]');
+    if (btn) { btn.disabled = true; btn.textContent = '🌿 Sending...'; }
+
+    try {
+      const res = await fetch('http://127.0.0.1:5000/api/reservations', {
+        method:  'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        document.getElementById('formContent').style.display = 'none';
+        document.getElementById('formSuccess').style.display = 'block';
+        window.scrollTo({ top: document.getElementById('reserve').offsetTop - 100, behavior: 'smooth' });
+      } else {
+        alert('❌ ' + (data.error || 'Something went wrong.'));
+        if (btn) { btn.disabled = false; btn.textContent = '🌿 Send Reservation Request'; }
+      }
+
+    } catch (err) {
+      alert('❌ Could not reach server. Make sure backend is running.');
+      if (btn) { btn.disabled = false; btn.textContent = '🌿 Send Reservation Request'; }
+    }
+  }
+
+  function subscribeNewsletter(btn) {
+    btn.textContent = "✓ You're on the list!";
+    btn.style.background = 'var(--leaf)';
+    btn.style.color = 'var(--soil)';
+    btn.disabled = true;
+  }
+</script>
+</body>
+</html>

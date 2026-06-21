@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MITTI — Sign In | The Living Soil Cafe</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --soil:       #1C1208;
+      --bark:       #2E1F0E;
+      --terracotta: #C4622D;
+      --gold:       #D4A029;
+      --leaf:       #5A8A3C;
+      --sage:       #8FB87A;
+      --cream:      #FAF6EF;
+      --ash:        #9B9082;
+      --parchment:  #F0E6D3;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--soil);
+      min-height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── LEFT PANEL */
+    .left-panel {
+      width: 42%;
+      background: var(--bark);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 3rem 3.5rem;
+      overflow: hidden;
+    }
+
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 80%, rgba(196,98,45,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 80% 20%, rgba(90,138,60,0.12) 0%, transparent 60%);
+    }
+
+    /* Animated farm towers */
+    .bg-towers {
+      position: absolute;
+      right: -2rem;
+      top: 0;
+      bottom: 0;
+      display: flex;
+      gap: 1.2rem;
+      align-items: flex-start;
+      padding-top: 2rem;
+      opacity: 0.07;
+    }
+
+    .bg-tower {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      animation: sway 6s ease-in-out infinite;
+    }
+    .bg-tower:nth-child(2) { margin-top: 3rem; animation-delay: -2s; }
+    .bg-tower:nth-child(3) { margin-top: 1rem; animation-delay: -4s; }
+
+    @keyframes sway {
+      0%,100% { transform: rotate(-1deg); }
+      50%      { transform: rotate(1deg); }
+    }
+
+    .bg-pod {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: var(--sage);
+    }
+    .bg-stem { width: 3px; height: 2rem; background: var(--sage); }
+
+    /* Logo */
+    .logo-area {
+      position: relative;
+      z-index: 1;
+    }
+    .logo-mark {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    .logo-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--cream);
+      letter-spacing: 0.12em;
+      line-height: 1;
+    }
+    .logo-tag {
+      font-size: 0.72rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--ash);
+      margin-top: 0.4rem;
+    }
+
+    /* Tagline block */
+    .left-body {
+      position: relative;
+      z-index: 1;
+    }
+    .left-body h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem;
+      font-weight: 400;
+      color: var(--cream);
+      line-height: 1.25;
+      margin-bottom: 1.2rem;
+    }
+    .left-body h2 em {
+      font-style: italic;
+      color: var(--sage);
+    }
+    .left-body p {
+      font-size: 0.88rem;
+      color: var(--ash);
+      line-height: 1.7;
+      max-width: 280px;
+    }
+
+    /* Perks chips */
+    .perks {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      position: relative;
+      z-index: 1;
+    }
+    .perk {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(250,246,239,0.04);
+      border: 1px solid rgba(250,246,239,0.08);
+      border-radius: 0.6rem;
+      padding: 0.65rem 1rem;
+      font-size: 0.82rem;
+      color: var(--parchment);
+    }
+    .perk-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    /* ── RIGHT PANEL */
+    .right-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 440px;
+    }
+
+    /* Tab switcher */
+    .tab-switcher {
+      display: flex;
+      background: rgba(250,246,239,0.04);
+      border: 1px solid rgba(250,246,239,0.08);
+      border-radius: 0.8rem;
+      padding: 4px;
+      margin-bottom: 2rem;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 0.65rem;
+      border: none;
+      background: transparent;
+      color: var(--ash);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      border-radius: 0.55rem;
+      transition: all 0.25s;
+    }
+    .tab-btn.active {
+      background: var(--terracotta);
+      color: var(--cream);
+    }
+
+    /* Form */
+    .form-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem;
+      color: var(--cream);
+      margin-bottom: 0.4rem;
+    }
+    .form-subtitle {
+      font-size: 0.82rem;
+      color: var(--ash);
+      margin-bottom: 2rem;
+    }
+
+    .field-row { display: flex; gap: 1rem; }
+    .field-row .field { flex: 1; }
+
+    .field {
+      margin-bottom: 1.1rem;
+    }
+    .field label {
+      display: block;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ash);
+      margin-bottom: 0.4rem;
+    }
+    .field input {
+      width: 100%;
+      background: rgba(250,246,239,0.05);
+      border: 1px solid rgba(250,246,239,0.12);
+      border-radius: 0.6rem;
+      padding: 0.8rem 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      color: var(--cream);
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .field input::placeholder { color: rgba(155,144,130,0.5); }
+    .field input:focus {
+      border-color: var(--sage);
+      background: rgba(143,184,122,0.06);
+    }
+    .field input.error { border-color: var(--terracotta); }
+
+    .field-hint {
+      font-size: 0.72rem;
+      color: var(--ash);
+      margin-top: 0.3rem;
+    }
+    .field-hint.err { color: #E07A5A; }
+
+    /* Password toggle */
+    .field-wrap {
+      position: relative;
+    }
+    .field-wrap input { padding-right: 2.8rem; }
+    .pw-toggle {
+      position: absolute;
+      right: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      color: var(--ash);
+      padding: 0;
+      line-height: 1;
+    }
+
+    /* Submit button */
+    .btn-submit {
+      width: 100%;
+      padding: 0.95rem;
+      background: var(--leaf);
+      color: var(--cream);
+      border: none;
+      border-radius: 0.7rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: background 0.2s, transform 0.15s;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn-submit:hover { background: #4d7a33; }
+    .btn-submit:active { transform: scale(0.99); }
+    .btn-submit:disabled { background: #3a5a28; opacity: 0.6; cursor: not-allowed; }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.2rem 0;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(250,246,239,0.08);
+    }
+    .divider span {
+      font-size: 0.72rem;
+      color: var(--ash);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* Google btn */
+    .btn-google {
+      width: 100%;
+      padding: 0.85rem;
+      background: rgba(250,246,239,0.04);
+      border: 1px solid rgba(250,246,239,0.12);
+      border-radius: 0.7rem;
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      transition: background 0.2s;
+    }
+    .btn-google:hover { background: rgba(250,246,239,0.08); }
+
+    /* Forgot */
+    .forgot-link {
+      display: block;
+      text-align: right;
+      font-size: 0.75rem;
+      color: var(--ash);
+      text-decoration: none;
+      margin-top: -0.6rem;
+      margin-bottom: 1rem;
+      transition: color 0.2s;
+    }
+    .forgot-link:hover { color: var(--sage); }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--bark);
+      border: 1px solid rgba(250,246,239,0.12);
+      border-radius: 0.8rem;
+      padding: 1rem 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+      color: var(--cream);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      transform: translateY(6rem);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      z-index: 100;
+      max-width: 320px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success .toast-icon { color: var(--sage); }
+    .toast.error   .toast-icon { color: #E07A5A; }
+    .toast-icon { font-size: 1.2rem; }
+
+    /* Loading spinner */
+    .spinner {
+      width: 1rem; height: 1rem;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .btn-submit.loading .spinner { display: block; }
+    .btn-submit.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Logged-in state */
+    .logged-in-view {
+      display: none;
+      text-align: center;
+    }
+    .logged-in-view .avatar {
+      width: 5rem; height: 5rem;
+      background: var(--leaf);
+      border-radius: 50%;
+      font-size: 2.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.2rem;
+    }
+    .logged-in-view h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem;
+      color: var(--cream);
+      margin-bottom: 0.4rem;
+    }
+    .logged-in-view p {
+      font-size: 0.82rem;
+      color: var(--ash);
+      margin-bottom: 2rem;
+    }
+    .user-meta {
+      background: rgba(250,246,239,0.04);
+      border: 1px solid rgba(250,246,239,0.08);
+      border-radius: 0.8rem;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+    .user-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      padding: 0.35rem 0;
+      border-bottom: 1px solid rgba(250,246,239,0.05);
+    }
+    .user-meta-row:last-child { border-bottom: none; }
+    .user-meta-row .key { color: var(--ash); }
+    .user-meta-row .val { color: var(--parchment); font-weight: 500; }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+    }
+    .nav-link-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.75rem 1rem;
+      background: rgba(250,246,239,0.04);
+      border: 1px solid rgba(250,246,239,0.08);
+      border-radius: 0.6rem;
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .nav-link-btn:hover { background: rgba(250,246,239,0.08); }
+
+    .btn-logout {
+      width: 100%;
+      padding: 0.8rem;
+      background: transparent;
+      border: 1px solid rgba(196,98,45,0.4);
+      border-radius: 0.7rem;
+      color: #E07A5A;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-logout:hover { background: rgba(196,98,45,0.08); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .left-panel { display: none; }
+      .right-panel { padding: 1.5rem; }
+    }
+
+    /* Form panels */
+    .form-panel { display: none; }
+    .form-panel.active { display: block; }
+
+    /* Fade in animation */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .auth-card { animation: fadeUp 0.5s ease both; }
+  </style>
+</head>
+<body>
+
+<!-- ── LEFT PANEL ── -->
+<div class="left-panel">
+  <div class="bg-towers">
+    <div class="bg-tower">
+      <div class="bg-pod"></div><div class="bg-stem"></div>
+      <div class="bg-pod"></div><div class="bg-stem"></div>
+      <div class="bg-pod"></div><div class="bg-stem"></div>
+      <div class="bg-pod"></div>
+    </div>
+    <div class="bg-tower">
+      <div class="bg-pod"></div><div class="bg-stem"></div>
+      <div class="bg-pod"></div><div class="bg-stem"></div>
+      <div class="bg-pod"></div>
+    </div>
+    <div class="bg-tower">
+      <div class="bg-pod"></div><div class="bg-stem"></div>
+      <div class="bg-pod"></div><div class="bg-stem"></div>
+      <div class="bg-pod"></div><div class="bg-stem"></div>
+      <div class="bg-pod"></div><div class="bg-stem"></div>
+      <div class="bg-pod"></div>
+    </div>
+  </div>
+
+  <div class="logo-area">
+    <div class="logo-mark">🌱</div>
+    <div class="logo-name">MITTI</div>
+    <div class="logo-tag">The Living Soil Cafe · Jaipur</div>
+  </div>
+
+  <div class="left-body">
+    <h2>Your seat at<br>the <em>living</em><br>table awaits.</h2>
+    <p>Sign in to manage reservations, track your adopted plant, and carry your cart across every visit.</p>
+  </div>
+
+  <div class="perks">
+    <div class="perk"><span class="perk-icon">🌿</span> Save your cart across sessions</div>
+    <div class="perk"><span class="perk-icon">📅</span> Manage your table reservations</div>
+    <div class="perk"><span class="perk-icon">🌱</span> Track your adopted plant live</div>
+    <div class="perk"><span class="perk-icon">🎁</span> 10% off every dine-in meal</div>
+  </div>
+</div>
+
+<!-- ── RIGHT PANEL ── -->
+<div class="right-panel">
+  <div class="auth-card">
+
+    <!-- LOGGED IN VIEW -->
+    <div class="logged-in-view" id="loggedInView">
+      <div class="avatar" id="userAvatar">🌱</div>
+      <h3 id="userName">Welcome back!</h3>
+      <p id="userEmail">user@example.com</p>
+      <div class="user-meta">
+        <div class="user-meta-row">
+          <span class="key">User ID</span>
+          <span class="val" id="metaId">—</span>
+        </div>
+        <div class="user-meta-row">
+          <span class="key">Member since</span>
+          <span class="val" id="metaJoined">—</span>
+        </div>
+        <div class="user-meta-row">
+          <span class="key">Session token</span>
+          <span class="val" id="metaSession">—</span>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="menu.html" class="nav-link-btn">🌿 Browse This Week's Menu</a>
+        <a href="contact.html" class="nav-link-btn">📅 My Reservations</a>
+        <a href="index.html" class="nav-link-btn">🏠 Back to Home</a>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sign out</button>
+    </div>
+
+    <!-- AUTH FORMS -->
+    <div id="authForms">
+      <div class="tab-switcher">
+        <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
+        <button class="tab-btn" onclick="switchTab('register')">Create Account</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div class="form-panel active" id="loginPanel">
+        <div class="form-title">Good to see you.</div>
+        <div class="form-subtitle">Sign in to your MITTI account</div>
+
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="loginEmail" placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <div class="field-wrap">
+            <input type="password" id="loginPassword" placeholder="Your password" />
+            <button class="pw-toggle" onclick="togglePw('loginPassword', this)">👁️</button>
+          </div>
+          <a href="#" class="forgot-link" onclick="handleForgot(event)">Forgot password?</a>
+        </div>
+
+        <button class="btn-submit" id="loginBtn" onclick="handleLogin()">
+          <div class="spinner"></div>
+          <span class="btn-text">🌱 Sign In</span>
+        </button>
+
+        <div class="divider"><span>or</span></div>
+        <button class="btn-google" onclick="showToast('Google sign-in coming soon!', 'error')">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#EA4335" d="M5.27 9.76A7.08 7.08 0 0 1 12 4.9c1.83 0 3.47.67 4.74 1.76l3.54-3.54A12 12 0 0 0 0 12c0 1.98.48 3.84 1.33 5.49l3.94-3.06a7.09 7.09 0 0 1 0-4.67Z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.94-2.91l-3.67-2.85A7.1 7.1 0 0 1 5.27 14.24L1.33 17.3A12 12 0 0 0 12 24Z"/><path fill="#4A90D9" d="M23.49 12.27c0-.79-.07-1.55-.2-2.27H12v4.51h6.47a5.54 5.54 0 0 1-2.4 3.64l3.67 2.85C21.8 19.01 23.49 15.88 23.49 12.27Z"/><path fill="#FBBC05" d="M5.27 14.24A7.14 7.14 0 0 1 4.9 12c0-.78.13-1.54.37-2.24L1.33 6.7A12.04 12.04 0 0 0 0 12c0 1.98.48 3.84 1.33 5.49l3.94-3.06-.01.01Z"/></svg>
+          Continue with Google
+        </button>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div class="form-panel" id="registerPanel">
+        <div class="form-title">Plant your roots.</div>
+        <div class="form-subtitle">Create your MITTI account</div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>First Name</label>
+            <input type="text" id="regFirst" placeholder="Arjun" />
+          </div>
+          <div class="field">
+            <label>Last Name</label>
+            <input type="text" id="regLast" placeholder="Singhvi" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="regEmail" placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label>Phone <span style="color:var(--ash);font-size:0.65rem">(optional)</span></label>
+          <input type="tel" id="regPhone" placeholder="+91 98765 43210" />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <div class="field-wrap">
+            <input type="password" id="regPassword" placeholder="Min. 8 characters" />
+            <button class="pw-toggle" onclick="togglePw('regPassword', this)">👁️</button>
+          </div>
+          <div class="field-hint" id="pwStrengthHint"></div>
+        </div>
+        <div class="field">
+          <label>Confirm Password</label>
+          <div class="field-wrap">
+            <input type="password" id="regConfirm" placeholder="Repeat password" />
+            <button class="pw-toggle" onclick="togglePw('regConfirm', this)">👁️</button>
+          </div>
+        </div>
+
+        <button class="btn-submit" id="registerBtn" onclick="handleRegister()">
+          <div class="spinner"></div>
+          <span class="btn-text">🌿 Create Account</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">✅</span>
+  <span id="toastMsg">Message here</span>
+</div>
+  
+<script>
+  const API = 'http://localhost:5000';
+
+  // ── Tab switcher
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+    document.getElementById(tab === 'login' ? 'loginPanel' : 'registerPanel').classList.add('active');
+  }
+
+  // ── Password toggle
+  function togglePw(id, btn) {
+    const inp = document.getElementById(id);
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    btn.textContent = inp.type === 'password' ? '👁️' : '🙈';
+  }
+
+  // ── Password strength
+  document.getElementById('regPassword')?.addEventListener('input', function() {
+    const hint = document.getElementById('pwStrengthHint');
+    const v = this.value;
+    if (!v) { hint.textContent = ''; return; }
+    let score = 0;
+    if (v.length >= 8) score++;
+    if (/[A-Z]/.test(v)) score++;
+    if (/[0-9]/.test(v)) score++;
+    if (/[^A-Za-z0-9]/.test(v)) score++;
+    const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+    const colors = ['', '#E07A5A', '#D4A029', '#8FB87A', '#5A8A3C'];
+    hint.textContent = '● ' + (labels[score] || 'Weak');
+    hint.style.color = colors[score] || '#E07A5A';
+  });
+
+  // ── Toast
+  let toastTimer;
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    const icon = document.getElementById('toastIcon');
+    document.getElementById('toastMsg').textContent = msg;
+    icon.textContent = type === 'success' ? '✅' : '❌';
+    t.className = `toast ${type} show`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  // ── Set button loading
+  function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    btn.classList.toggle('loading', loading);
+    btn.disabled = loading;
+  }
+
+  // ── Normalize user object: handle both snake_case (from register) and camelCase (from login)
+  function normalizeUser(user) {
+    return {
+      id:        user.id,
+      firstName: user.firstName || user.first_name || '',
+      lastName:  user.lastName  || user.last_name  || '',
+      email:     user.email     || '',
+      phone:     user.phone     || '',
+      role:      user.role      || 'customer',
+      createdAt: user.createdAt || user.created_at || ''
+    };
+  }
+
+  // ── Redirect after successful auth
+  function redirectAfterAuth(name, isNew) {
+    const greeting = isNew
+      ? `Welcome to MITTI, ${name}! 🌿`
+      : `Welcome back, ${name}! 🌱`;
+    showToast(greeting);
+    // Redirect to home after a short delay so the toast is visible
+    setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+  }
+
+  // ── LOGIN
+  async function handleLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) { showToast('Please fill in all fields.', 'error'); return; }
+
+    setLoading('loginBtn', true);
+    try {
+      const res = await fetch(`${API}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (data.success) {
+        const user = normalizeUser(data.user);
+        saveSession(user, data.sessionToken);
+        redirectAfterAuth(user.firstName, false);
+      } else {
+        showToast(data.error || 'Invalid credentials.', 'error');
+      }
+    } catch (e) {
+      showToast('Cannot reach server. Is Flask running?', 'error');
+    }
+    setLoading('loginBtn', false);
+  }
+
+  // ── REGISTER
+  async function handleRegister() {
+    const firstName = document.getElementById('regFirst').value.trim();
+    const lastName  = document.getElementById('regLast').value.trim();
+    const email     = document.getElementById('regEmail').value.trim();
+    const phone     = document.getElementById('regPhone').value.trim();
+    const password  = document.getElementById('regPassword').value;
+    const confirm   = document.getElementById('regConfirm').value;
+
+    if (!firstName || !email || !password) { showToast('First name, email, and password are required.', 'error'); return; }
+    if (password.length < 8) { showToast('Password must be at least 8 characters.', 'error'); return; }
+    if (password !== confirm) { showToast('Passwords do not match.', 'error'); return; }
+
+    setLoading('registerBtn', true);
+    try {
+      const res = await fetch(`${API}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstName, lastName, email, phone, password })
+      });
+      const data = await res.json();
+      if (data.success) {
+        const user = normalizeUser(data.user);
+        saveSession(user, data.sessionToken);
+        redirectAfterAuth(user.firstName, true);
+      } else {
+        showToast(data.error || 'Registration failed.', 'error');
+      }
+    } catch (e) {
+      showToast('Cannot reach server. Is Flask running?', 'error');
+    }
+    setLoading('registerBtn', false);
+  }
+
+  // ── FORGOT PASSWORD
+  function handleForgot(e) {
+    e.preventDefault();
+    showToast('Password reset email sent! Check your inbox. 📬');
+  }
+
+  // ── SESSION MANAGEMENT
+  function saveSession(user, sessionToken) {
+    localStorage.setItem('mitti_user', JSON.stringify(user));
+    localStorage.setItem('mitti_token', sessionToken || '');
+  }
+
+  function getSession() {
+    try { return JSON.parse(localStorage.getItem('mitti_user')); } catch { return null; }
+  }
+
+  function showLoggedIn() {
+    const user = getSession();
+    if (!user) return;
+    document.getElementById('authForms').style.display = 'none';
+    document.getElementById('loggedInView').style.display = 'block';
+
+    const initial = (user.firstName || '?')[0].toUpperCase();
+    document.getElementById('userAvatar').textContent = initial;
+    document.getElementById('userName').textContent = `${user.firstName} ${user.lastName || ''}`.trim();
+    document.getElementById('userEmail').textContent = user.email;
+    document.getElementById('metaId').textContent = `#${user.id}`;
+    document.getElementById('metaJoined').textContent = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }) : '—';
+    document.getElementById('metaSession').textContent = (localStorage.getItem('mitti_token') || '').slice(0, 12) + '…';
+  }
+
+  function logout() {
+    localStorage.removeItem('mitti_user');
+    localStorage.removeItem('mitti_token');
+    document.getElementById('authForms').style.display = 'block';
+    document.getElementById('loggedInView').style.display = 'none';
+    showToast('Signed out successfully. See you soon! 🌱');
+  }
+
+  // ── On load: check if already logged in
+  window.addEventListener('DOMContentLoaded', () => {
+    if (getSession()) showLoggedIn();
+  });
+</script>
+</body>
+</html>

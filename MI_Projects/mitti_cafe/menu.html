@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu — MITTI The Living Soil Cafe | Jaipur</title>
+  <meta name="description" content="This week's harvest menu at MITTI Cafe, Jaipur. Seasonal, zero-waste, 40% grown on-site. Bajra bowls, ker sangri salads, house-brewed kombucha." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <style>
+    /* ── Cart FAB Button */
+    .cart-fab {
+      position: fixed;
+      bottom: 2rem; right: 2rem;
+      z-index: 900;
+      background: var(--terracotta);
+      color: var(--cream);
+      border: none;
+      border-radius: var(--radius-pill);
+      padding: 0.85rem 1.6rem;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(194,98,45,0.35);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+      font-family: var(--font-body);
+    }
+    .cart-fab:hover { background: var(--soil); transform: translateY(-3px); }
+    .cart-count {
+      background: var(--cream);
+      color: var(--terracotta);
+      border-radius: 50%;
+      width: 22px; height: 22px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease;
+    }
+    .cart-count.bump { transform: scale(1.4); }
+
+    /* ── Cart Overlay */
+    .cart-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(44,26,14,0.45);
+      z-index: 1001;
+      backdrop-filter: blur(3px);
+    }
+    .cart-overlay.open { display: block; }
+
+    /* ── Cart Drawer */
+    .cart-drawer {
+      position: fixed;
+      top: 0; right: -480px;
+      width: 440px; max-width: 95vw;
+      height: 100vh;
+      background: var(--cream);
+      z-index: 1002;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+      box-shadow: -8px 0 40px rgba(44,26,14,0.15);
+    }
+    .cart-drawer.open { right: 0; }
+
+    .cart-drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--sand);
+      background: var(--soil);
+    }
+    .cart-drawer-header h3 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--sand);
+    }
+    .cart-drawer-header button {
+      background: rgba(240,230,211,0.12);
+      border: none;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      font-size: 1rem;
+      cursor: pointer;
+      color: var(--sand);
+      display: flex; align-items: center; justify-content: center;
+      transition: 0.2s;
+    }
+    .cart-drawer-header button:hover { background: rgba(240,230,211,0.25); }
+
+    /* ── Cart Items List */
+    .cart-items-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .cart-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 1rem;
+      color: var(--ash);
+      font-size: 0.9rem;
+    }
+    .cart-empty-icon { font-size: 3.5rem; opacity: 0.4; }
+    .cart-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: var(--sand);
+      border-radius: 12px;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .cart-item-emoji { font-size: 2rem; flex-shrink: 0; }
+    .cart-item-info  { flex: 1; min-width: 0; }
+    .cart-item-name  { font-size: 0.88rem; font-weight: 500; color: var(--soil); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cart-item-price { font-size: 0.78rem; color: var(--ash); margin-top: 0.2rem; }
+    .cart-item-price strong { color: var(--terracotta); }
+    .cart-item-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-shrink: 0;
+    }
+    .cart-item-controls button {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(44,26,14,0.15);
+      background: var(--cream);
+      color: var(--soil);
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: 0.2s;
+      line-height: 1;
+    }
+    .cart-item-controls button:hover { background: var(--terracotta); color: var(--cream); border-color: var(--terracotta); }
+    .cart-item-controls .qty { font-size: 0.85rem; min-width: 18px; text-align: center; font-weight: 500; }
+    .btn-remove {
+      background: transparent !important;
+      border: none !important;
+      color: var(--ash) !important;
+      font-size: 0.85rem !important;
+      margin-left: 0.2rem;
+      cursor: pointer;
+      transition: color 0.2s !important;
+    }
+    .btn-remove:hover { color: var(--terracotta) !important; background: transparent !important; }
+
+    /* ── Cart Footer */
+    .cart-drawer-footer {
+      padding: 1.5rem 1.5rem;
+      border-top: 1px solid var(--sand);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      background: #fff;
+    }
+    .cart-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      color: var(--ash);
+      padding: 0.5rem 0;
+    }
+    .cart-total-row strong {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      color: var(--terracotta);
+      line-height: 1;
+    }
+    .cart-checkout-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      background: var(--terracotta);
+      color: var(--cream);
+      padding: 1rem 2rem;
+      border-radius: 100px;
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      font-family: var(--font-body);
+      transition: 0.3s;
+      border: none;
+      cursor: pointer;
+    }
+    .cart-checkout-btn:hover { background: var(--soil); transform: translateY(-2px); }
+    .cart-clear-btn {
+      background: none;
+      border: none;
+      color: var(--ash);
+      font-size: 0.75rem;
+      cursor: pointer;
+      text-align: center;
+      font-family: var(--font-body);
+      letter-spacing: 0.08em;
+      text-decoration: underline;
+      transition: color 0.2s;
+    }
+    .cart-clear-btn:hover { color: var(--terracotta); }
+
+    /* ── Add to Cart Button */
+    .add-to-cart-btn {
+      margin-top: 0.9rem;
+      width: 100%;
+      padding: 0.55rem 1rem;
+      border-radius: 100px;
+      border: 1.5px solid var(--terracotta);
+      background: transparent;
+      color: var(--terracotta);
+      font-family: var(--font-body);
+      font-size: 0.76rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+    .add-to-cart-btn:hover {
+      background: var(--terracotta);
+      color: var(--cream);
+      transform: translateY(-1px);
+    }
+    .add-to-cart-btn.adding {
+      background: var(--moss);
+      border-color: var(--moss);
+      color: var(--cream);
+    }
+
+    /* ── Toast */
+    .cart-toast {
+      position: fixed;
+      bottom: 6rem; right: 2rem;
+      background: var(--soil);
+      color: var(--sand);
+      padding: 0.75rem 1.4rem;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      z-index: 1100;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: 0.35s ease;
+      pointer-events: none;
+      font-family: var(--font-body);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 8px 24px rgba(44,26,14,0.2);
+    }
+    .cart-toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── Menu item card layout fix to accommodate button */
+    .menu-item-card { flex-direction: column; align-items: flex-start; }
+    .menu-item-card .item-emoji { font-size: 2.2rem; flex-shrink: 0; }
+    .menu-item-card .item-info  { width: 100%; }
+
+    @media (min-width: 600px) {
+      .menu-item-card { flex-direction: row; }
+      .menu-item-card .item-info { flex: 1; }
+      .add-to-cart-btn { width: auto; align-self: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- ── CART FAB ── -->
+<button class="cart-fab" onclick="openCart()">
+  🛒 <span class="cart-count" id="cartCount">0</span>
+</button>
+
+<!-- ── CART OVERLAY ── -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+
+<!-- ── CART DRAWER ── -->
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-drawer-header">
+    <h3>🛒 Your Cart</h3>
+    <button onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items-list" id="cartItemsList">
+    <div class="cart-empty">
+      <div class="cart-empty-icon">🌱</div>
+      <p>Your cart is empty</p>
+      <p style="font-size:0.78rem;opacity:0.6">Add items from the menu below</p>
+    </div>
+  </div>
+  <div class="cart-drawer-footer">
+    <div class="cart-total-row">
+      <span>Total Amount</span>
+      <strong id="cartTotal">₹0</strong>
+    </div>
+    <a href="contact.html" class="cart-checkout-btn">🌿 Reserve & Confirm Order</a>
+    <button class="cart-clear-btn" onclick="clearCart()">Clear cart</button>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="cart-toast" id="cartToast"></div>
+
+<main id="main-content">
+  <div class="page-wrapper">
+
+    <!-- MENU HERO -->
+    <section class="menu-hero">
+      <div class="menu-week-tag">🌿 Week of May 5–11, 2025</div>
+      <div class="section-label" style="justify-content:center;color:var(--sage)">This Week's Harvest</div>
+      <h1 class="section-heading" style="color:var(--sand);margin:1rem auto;max-width:600px">What the <em>towers</em><br>are giving us</h1>
+      <p style="color:rgba(240,230,211,0.65);max-width:480px;margin:0 auto">
+        Our menu changes weekly. No two visits are the same — because nature never repeats itself. Everything marked 🌿 was harvested on-site this morning.
+      </p>
+    </section>
+
+    <!-- MENU BODY -->
+    <div class="menu-page">
+
+      <!-- Filter Bar -->
+      <div class="menu-filter-bar">
+        <span class="filter-label">Filter:</span>
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="vegan">Vegan</button>
+        <button class="filter-btn" data-filter="signature">Signature</button>
+        <button class="filter-btn" data-filter="seasonal">Seasonal</button>
+        <button class="filter-btn" data-filter="drinks">Drinks</button>
+        <button class="filter-btn" data-filter="harvest">Harvest Add-on</button>
+      </div>
+
+      <!-- HARVEST HIGHLIGHT BANNER -->
+      <div class="harvest-highlight">
+        <div class="harvest-icon">🥼</div>
+        <div class="harvest-text">
+          <h3>Harvest Your Meal — ₹100 Add-on</h3>
+          <p>For any dish marked 🌿, add the Harvest experience: don a lab coat, enter the farm, snip your own herbs & microgreens that go directly into your plate. Ask your server to add it on. Available 9am–7pm, limited slots per hour.</p>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           MORNING BOWLS
+      ════════════════════════════════════ -->
+      <div class="menu-category" data-category="bowls">
+        <div class="menu-category-title">
+          <span class="cat-icon">🌅</span>
+          <h2>Morning Bowls & Breakfast</h2>
+          <span class="tag seasonal">8am – 12pm</span>
+        </div>
+        <div class="menu-grid-full">
+
+          <div class="menu-item-card fade-in">
+            <div class="item-emoji">🥣</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Bajra Porridge Bowl 🌿</div>
+                <div class="item-price">₹280</div>
+              </div>
+              <div class="item-desc">Stone-ground pearl millet slow-cooked in turmeric oat milk, topped with house-grown microgreens, jaggery crumble & roasted seeds</div>
+              <div class="item-tags"><span class="tag vegan">Vegan</span><span class="tag seasonal">Seasonal</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Bajra Porridge Bowl','🥣',280,'Bowls','vegan,seasonal')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="menu-item-card fade-in fade-in-delay-1">
+            <div class="item-emoji">🫓</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Missi Roti & Farm Butter</div>
+                <div class="item-price">₹220</div>
+              </div>
+              <div class="item-desc">Multi-grain Rajasthani flatbread with fresh cultured butter, methi microgreens & raw honey from Aravalli beekeepers</div>
+              <div class="item-tags"><span class="tag seasonal">Seasonal</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Missi Roti & Farm Butter','🫓',220,'Bowls','seasonal')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="menu-item-card fade-in fade-in-delay-2">
+            <div class="item-emoji">🥚</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Shakshuka à la Mitti 🌿</div>
+                <div class="item-price">₹340</div>
+              </div>
+              <div class="item-desc">Farm eggs poached in spiced tomato-chilli sauce, tower-grown coriander, feta crumble, bajra sourdough toast</div>
+              <div class="item-tags"><span class="tag signature">Signature</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Shakshuka à la Mitti','🥚',340,'Bowls','signature')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="menu-item-card fade-in fade-in-delay-1">
+            <div class="item-emoji">🫙</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Overnight Jowar Parfait</div>
+                <div class="item-price">₹260</div>
+              </div>
+              <div class="item-desc">Sorghum flakes layered with house-made coconut yoghurt, chia seeds, seasonal fruit compote & pea shoot garnish</div>
+              <div class="item-tags"><span class="tag vegan">Vegan</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Overnight Jowar Parfait','🫙',260,'Bowls','vegan')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="menu-item-card fade-in fade-in-delay-2">
+            <div class="item-emoji">🫔</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Sprouted Moong Wrap 🌿</div>
+                <div class="item-price">₹300</div>
+              </div>
+              <div class="item-desc">Home-sprouted moong, pickled radish, green chutney, avocado spread in a warm multigrain tortilla — made to travel</div>
+              <div class="item-tags"><span class="tag vegan">Vegan</span><span class="tag seasonal">Seasonal</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Sprouted Moong Wrap','🫔',300,'Bowls','vegan,seasonal')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="menu-item-card fade-in fade-in-delay-3">
+            <div class="item-emoji">🫕</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Ker Sangri Upma</div>
+                <div class="item-price">₹290</div>
+              </div>
+              <div class="item-desc">Rajasthan's iconic desert berry-and-bean duo tossed with semolina, mustard seeds, curry leaves & roasted peanuts</div>
+              <div class="item-tags"><span class="tag signature">Signature</span><span class="tag vegan">Vegan</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Ker Sangri Upma','🫕',290,'Bowls','signature,vegan')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           MAINS
+      ════════════════════════════════════ -->
+      <div class="menu-category">
+        <div class="menu-category-title">
+          <span class="cat-icon">🍽️</span>
+          <h2>Plates & Mains</h2>
+          <span class="tag seasonal">12pm – 9pm</span>
+        </div>
+        <div class="menu-grid-full">
+
+          <div class="menu-item-card fade-in">
+            <div class="item-emoji">🥗</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">MITTI Harvest Salad 🌿</div>
+                <div class="item-price">₹320</div>
+              </div>
+              <div class="item-desc">Freshly snipped tower greens, roasted ker sangri, crispy moth beans, charred corn, mustard-lime vinaigrette</div>
+              <div class="item-tags"><span class="tag signature">Signature</span><span class="tag vegan">Vegan</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('MITTI Harvest Salad','🥗',320,'Mains','signature,vegan')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="menu-item-card fade-in fade-in-delay-1">
+            <div class="item-emoji">🧆</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Moth Bean Kebab Plate 🌿</div>
+                <div class="item-price">₹380</div>
+              </div>
+              <div class="item-desc">Spiced moth bean & sweet potato patties, bajra roti, tower herb chutney, pickled radish & sprout salad</div>
+              <div class="item-tags"><span class="tag signature">Signature</span><span class="tag vegan">Vegan</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Moth Bean Kebab Plate','🧆',380,'Mains','signature,vegan')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="menu-item-card fade-in fade-in-delay-2">
+            <div class="item-emoji">🍲</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">MITTI Thali</div>
+                <div class="item-price">₹480</div>
+              </div>
+              <div class="item-desc">The full story: dal baati churma (gluten-free), ker sangri sabzi, bajra roti, papad, microgreen raita & gulkand dessert</div>
+              <div class="item-tags"><span class="tag signature">Signature</span><span class="tag seasonal">Seasonal</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('MITTI Thali','🍲',480,'Mains','signature,seasonal')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="menu-item-card fade-in fade-in-delay-1">
+            <div class="item-emoji">🫘</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Gatte ki Sabzi Bowl</div>
+                <div class="item-price">₹360</div>
+              </div>
+              <div class="item-desc">Chickpea flour dumplings in tangy yoghurt gravy, tower-grown fenugreek tempering, bajra pearl couscous</div>
+              <div class="item-tags"><span class="tag seasonal">Seasonal</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Gatte ki Sabzi Bowl','🫘',360,'Mains','seasonal')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="menu-item-card fade-in fade-in-delay-2">
+            <div class="item-emoji">🥙</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Paneer & Microgreen Flatbread 🌿</div>
+                <div class="item-price">₹400</div>
+              </div>
+              <div class="item-desc">Open-faced multigrain flatbread, house-made paneer, charred capsicum, tower basil pesto, pickled onions</div>
+              <div class="item-tags"><span class="tag signature">Signature</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Paneer & Microgreen Flatbread','🥙',400,'Mains','signature')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="menu-item-card fade-in fade-in-delay-3">
+            <div class="item-emoji">🌮</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Desert Tacos (3 pcs) 🌿</div>
+                <div class="item-price">₹420</div>
+              </div>
+              <div class="item-desc">Jowar shell tacos with spiced ker filling, pickled guar beans, herb slaw, tamarind drizzle & SCOBY-vinegar hot sauce</div>
+              <div class="item-tags"><span class="tag signature">Signature</span><span class="tag vegan">Vegan</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Desert Tacos (3 pcs)','🌮',420,'Mains','signature,vegan')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           DRINKS
+      ════════════════════════════════════ -->
+      <div class="menu-category" data-category="drinks">
+        <div class="menu-category-title">
+          <span class="cat-icon">🍵</span>
+          <h2>Elixirs & Beverages</h2>
+          <span class="tag vegan">All Day</span>
+        </div>
+        <div class="menu-grid-full">
+
+          <div class="menu-item-card fade-in">
+            <div class="item-emoji">🫧</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Desert Gold Kombucha 🌿</div>
+                <div class="item-price">₹180</div>
+              </div>
+              <div class="item-desc">House-brewed turmeric & raw amla kombucha — naturally effervescent, garnished with SCOBY crystal & tower mint</div>
+              <div class="item-tags"><span class="tag signature">Signature</span><span class="tag vegan">Vegan</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Desert Gold Kombucha','🫧',180,'Drinks','signature,vegan,drinks')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="menu-item-card fade-in fade-in-delay-1">
+            <div class="item-emoji">🌿</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Farm Cold Press (Seasonal) 🌿</div>
+                <div class="item-price">₹220</div>
+              </div>
+              <div class="item-desc">This week: cucumber-coriander-lime cold press from tower harvest. Changes every Monday with whatever's peak-ripe.</div>
+              <div class="item-tags"><span class="tag seasonal">Seasonal</span><span class="tag vegan">Vegan</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Farm Cold Press (Seasonal)','🌿',220,'Drinks','seasonal,vegan,drinks')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="menu-item-card fade-in fade-in-delay-2">
+            <div class="item-emoji">☕</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Bajra Latte</div>
+                <div class="item-price">₹160</div>
+              </div>
+              <div class="item-desc">Toasted pearl millet milk steamed with filter coffee, a pinch of cardamom — nutty, earthy, Rajasthani to the core</div>
+              <div class="item-tags"><span class="tag signature">Signature</span><span class="tag vegan">Vegan</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Bajra Latte','☕',160,'Drinks','signature,vegan,drinks')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="menu-item-card fade-in fade-in-delay-1">
+            <div class="item-emoji">🌸</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Tower Herb Infusions 🌿</div>
+                <div class="item-price">₹140</div>
+              </div>
+              <div class="item-desc">Live herb water brewed tableside: choose tulsi, pudina, or lemongrass — snipped fresh from the tower as you order</div>
+              <div class="item-tags"><span class="tag vegan">Vegan</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Tower Herb Infusions','🌸',140,'Drinks','vegan,drinks')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="menu-item-card fade-in fade-in-delay-2">
+            <div class="item-emoji">🥛</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Thandai Kefir</div>
+                <div class="item-price">₹190</div>
+              </div>
+              <div class="item-desc">Probiotic milk kefir blended with traditional thandai spices — rose, saffron, melon seeds, black pepper. Gut health as ritual.</div>
+              <div class="item-tags"><span class="tag seasonal">Seasonal</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Thandai Kefir','🥛',190,'Drinks','seasonal,drinks')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="menu-item-card fade-in fade-in-delay-3">
+            <div class="item-emoji">🍋</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Nimbu Shikanji Classic</div>
+                <div class="item-price">₹120</div>
+              </div>
+              <div class="item-desc">The Rajasthani original — fresh-pressed lime, black salt, cumin, chaat masala, jaggery syrup. The only beverage that predates us all.</div>
+              <div class="item-tags"><span class="tag vegan">Vegan</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Nimbu Shikanji Classic','🍋',120,'Drinks','vegan,drinks')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           DESSERTS
+      ════════════════════════════════════ -->
+      <div class="menu-category">
+        <div class="menu-category-title">
+          <span class="cat-icon">🍮</span>
+          <h2>Sweets & Desserts</h2>
+          <span class="tag seasonal">All Day</span>
+        </div>
+        <div class="menu-grid-full">
+
+          <div class="menu-item-card fade-in">
+            <div class="item-emoji">🍮</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Mitti Kheer</div>
+                <div class="item-price">₹200</div>
+              </div>
+              <div class="item-desc">Jowar & bajra kheer slow-cooked with saffron milk, jaggery & cardamom, topped with rose petal & pistachio</div>
+              <div class="item-tags"><span class="tag signature">Signature</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Mitti Kheer','🍮',200,'Desserts','signature')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="menu-item-card fade-in fade-in-delay-1">
+            <div class="item-emoji">🍫</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Cacao & Ker Sangri Tart</div>
+                <div class="item-price">₹280</div>
+              </div>
+              <div class="item-desc">Dark chocolate tart with a surprising ker sangri jam centre, sea salt, microgreen garnish, millet crust</div>
+              <div class="item-tags"><span class="tag signature">Signature</span><span class="tag vegan">Vegan</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Cacao & Ker Sangri Tart','🍫',280,'Desserts','signature,vegan')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="menu-item-card fade-in fade-in-delay-2">
+            <div class="item-emoji">🍧</div>
+            <div class="item-info">
+              <div class="item-header">
+                <div class="item-name">Churma Ice Cream Sundae</div>
+                <div class="item-price">₹240</div>
+              </div>
+              <div class="item-desc">House-churned ghee & jaggery ice cream crumbled with traditional churma, drizzled with warm gulkand syrup</div>
+              <div class="item-tags"><span class="tag signature">Signature</span></div>
+              <button class="add-to-cart-btn" onclick="addToCart('Churma Ice Cream Sundae','🍧',240,'Desserts','signature')">＋ Add to Cart</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- SOIL KITS CTA -->
+      <div style="background:var(--sand);border-radius:var(--radius-lg);padding:3rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:2rem;margin-bottom:3rem" class="fade-in">
+        <div>
+          <div class="section-label" style="margin-bottom:0.8rem">Take The Farm Home</div>
+          <h3 style="font-family:var(--font-display);font-size:1.8rem;font-weight:400;color:var(--soil);margin-bottom:0.5rem">MITTI Soil Kits — <em>₹349 to ₹699</em></h3>
+          <p style="color:var(--ash);font-size:0.9rem">Vertical garden starter packs. Grow bajra, methi & microgreens on any balcony. Seed-to-harvest guide included.</p>
+        </div>
+        <a href="contact.html" class="btn-primary">🧺 Shop Soil Kits</a>
+      </div>
+
+    </div><!-- end menu-page -->
+  </div><!-- end page-wrapper -->
+</main>
+
+<script src="js/components.js"></script>
+<!-- <script src="js/main.js"></script> -->
+<script>
+// ════════════════════════════════════════
+//  CART STATE (in-memory + localStorage)
+// ════════════════════════════════════════
+
+let SESSION_TOKEN = localStorage.getItem('mittiCartSession') || null;
+
+// cart = [ { id, name, emoji, price, category, tags, qty }, ... ]
+let cart = JSON.parse(localStorage.getItem('mittiCart') || '[]');
+
+// ── Save cart to localStorage
+function saveCart() {
+  localStorage.setItem('mittiCart', JSON.stringify(cart));
+}
+
+// ── Init: create session token if not exists, refresh UI
+async function initCart() {
+  if (!SESSION_TOKEN) {
+    try {
+      const res  = await fetch('http://127.0.0.1:5000/api/cart/session', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        SESSION_TOKEN = data.sessionToken;
+        localStorage.setItem('mittiCartSession', SESSION_TOKEN);
+      }
+    } catch (e) {
+      // Backend not running — cart still works locally
+      SESSION_TOKEN = 'local-' + Date.now();
+      localStorage.setItem('mittiCartSession', SESSION_TOKEN);
+    }
+  }
+  updateCartCount();
+}
+
+// ════════════════════════════════════════
+//  ADD TO CART
+// ════════════════════════════════════════
+
+async function addToCart(name, emoji, price, category, tags) {
+  // 1. Update local cart
+  const existing = cart.find(i => i.name === name);
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({ id: Date.now(), name, emoji, price, category, tags, qty: 1 });
+  }
+  saveCart();
+  updateCartCount();
+  showToast(`${emoji} ${name} added!`);
+
+  // 2. Sync to backend
+  try {
+    await fetch('http://127.0.0.1:5000/api/cart/add', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionToken:  SESSION_TOKEN,
+        itemName:      name,
+        itemEmoji:     emoji,
+        itemPrice:     price,
+        itemCategory:  category,
+        itemTags:      tags
+      })
+    });
+  } catch (e) { /* backend offline — local cart still works */ }
+
+  // 3. Flash the button
+  const btns = document.querySelectorAll('.add-to-cart-btn');
+
+  btns.forEach(btn => {
+    if (
+      btn
+        .getAttribute('onclick')
+        .includes(name.replace(/'/g, "").split('(')[0])
+    ) {
+      btn.classList.add('adding');
+      btn.textContent = '✓ Added!';
+
+      setTimeout(() => {
+        btn.classList.remove('adding');
+        btn.textContent = '＋ Add to Cart';
+      }, 1200);
+    }
+  });
+}
+
+// ════════════════════════════════════════
+//  CART COUNT BADGE
+// ════════════════════════════════════════
+
+function updateCartCount() {
+  const total = cart.reduce((s, i) => s + i.qty, 0);
+  const el = document.getElementById('cartCount');
+  if (!el) return;
+  el.textContent = total;
+  el.classList.add('bump');
+  setTimeout(() => el.classList.remove('bump'), 300);
+}
+
+// ════════════════════════════════════════
+//  CART DRAWER
+// ════════════════════════════════════════
+
+function openCart() {
+  renderCartDrawer();
+  document.getElementById('cartDrawer').classList.add('open');
+  document.getElementById('cartOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCart() {
+  document.getElementById('cartDrawer').classList.remove('open');
+  document.getElementById('cartOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function renderCartDrawer() {
+  const list    = document.getElementById('cartItemsList');
+  const totalEl = document.getElementById('cartTotal');
+  if (!list) return;
+
+  if (cart.length === 0) {
+    list.innerHTML = `
+      <div class="cart-empty">
+        <div class="cart-empty-icon">🌱</div>
+        <p>Your cart is empty</p>
+        <p style="font-size:0.78rem;opacity:0.6">Add items from the menu below</p>
+      </div>`;
+    if (totalEl) totalEl.textContent = '₹0';
+    return;
+  }
+
+  list.innerHTML = cart.map(item => `
+    <div class="cart-item" id="cartItem-${item.id}">
+      <div class="cart-item-emoji">${item.emoji}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">
+          ₹${item.price} × ${item.qty} = <strong>₹${item.price * item.qty}</strong>
+        </div>
+      </div>
+      <div class="cart-item-controls">
+        <button onclick="changeQty(${item.id}, ${item.qty - 1})">−</button>
+        <span class="qty">${item.qty}</span>
+        <button onclick="changeQty(${item.id}, ${item.qty + 1})">+</button>
+        <button class="btn-remove" onclick="removeItem(${item.id})">🗑</button>
+      </div>
+    </div>
+  `).join('');
+
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  if (totalEl) totalEl.textContent = `₹${total}`;
+}
+
+// ── Change quantity
+async function changeQty(itemId, newQty) {
+  if (newQty < 1) { await removeItem(itemId); return; }
+  const item = cart.find(i => i.id === itemId);
+  if (!item) return;
+  item.qty = newQty;
+  saveCart();
+  updateCartCount();
+  renderCartDrawer();
+
+  try {
+    await fetch('http://127.0.0.1:5000/api/cart/update', {
+      method:  'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionToken: SESSION_TOKEN, itemId, quantity: newQty })
+    });
+  } catch (e) {}
+}
+
+// ── Remove item
+async function removeItem(itemId) {
+  cart = cart.filter(i => i.id !== itemId);
+  saveCart();
+  updateCartCount();
+  renderCartDrawer();
+
+  try {
+    await fetch('http://127.0.0.1:5000/api/cart/remove', {
+      method:  'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionToken: SESSION_TOKEN, itemId })
+    });
+  } catch (e) {}
+}
+
+// ── Clear entire cart
+async function clearCart() {
+  cart = [];
+  saveCart();
+  updateCartCount();
+  renderCartDrawer();
+
+  try {
+    await fetch(`http://127.0.0.1:5000/api/cart/clear/${SESSION_TOKEN}`, { method: 'DELETE' });
+  } catch (e) {}
+}
+
+// ════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════
+
+function showToast(msg) {
+  const t = document.getElementById('cartToast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ════════════════════════════════════════
+//  FILTER BUTTONS
+// ════════════════════════════════════════
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+    document.querySelectorAll('.menu-item-card').forEach(card => {
+      if (filter === 'all') { card.style.display = 'flex'; return; }
+      const tags = card.querySelectorAll('.tag');
+      const tagTexts = Array.from(tags).map(t => t.textContent.toLowerCase());
+      const hasTag = tagTexts.some(t => t.includes(filter));
+      const isHarvest = filter === 'harvest' && card.querySelector('.item-name')?.textContent.includes('🌿');
+      card.style.display = (hasTag || isHarvest) ? 'flex' : 'none';
+    });
+  });
+});
+
+// ── Boot
+initCart();
+</script>
+</body>
+</html>

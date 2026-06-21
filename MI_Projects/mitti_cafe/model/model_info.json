@@ -1,0 +1,13 @@
+{
+  "features": [
+    "cafe_visits_last_month",
+    "whatsapp_opened",
+    "box_accepted",
+    "months_subscribed",
+    "plan_type"
+  ],
+  "accuracy": 100.0,
+  "model_type": "LogisticRegression",
+  "trained_on": 80,
+  "version": "1.0"
+}
