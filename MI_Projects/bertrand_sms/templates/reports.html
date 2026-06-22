@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Reports — Bertrand's Crawfish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/css/main.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="brand">
+    <span class="brand-icon">🦞</span>
+    <div><div class="brand-name">BERTRAND'S</div><div class="brand-sub">Crawfish & Seafood</div></div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="/" class="nav-link"><span>📊</span> Dashboard</a></li>
+    <li><a href="/orders" class="nav-link"><span>📦</span> Orders</a></li>
+    <li><a href="/customers" class="nav-link"><span>👥</span> Customers</a></li>
+    <li><a href="/drivers" class="nav-link"><span>🚚</span> Drivers</a></li>
+    <li><a href="/products" class="nav-link"><span>🦐</span> Products</a></li>
+    <li><a href="/reports" class="nav-link active"><span>📈</span> Reports</a></li>
+    <li><a href="/settings" class="nav-link"><span>⚙️</span> Settings</a></li>
+  </ul>
+  <div class="sidebar-footer">
+    SMS Management v1.0
+    <a href="/logout" style="display:block;margin-top:8px;color:#E85D26;font-size:12px;">🚪 Logout</a>
+  </div>
+</nav>
+<main class="main">
+  <header class="page-header">
+    <h1 class="page-title">Reports</h1>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <select id="date-preset" class="form-input" style="width:160px" onchange="onPresetChange()">
+        <option value="180">Last 6 Months</option>
+        <option value="7">Last 7 Days</option>
+        <option value="30">Last 30 Days</option>
+        <option value="90">Last 90 Days</option>
+        <option value="thismonth">This Month</option>
+        <option value="thisyear">This Year</option>
+        <option value="custom">Custom Range</option>
+      </select>
+      <input type="date" id="date-from" class="form-input" style="width:140px;display:none"/>
+      <input type="date" id="date-to" class="form-input" style="width:140px;display:none"/>
+      <button id="apply-btn" class="btn btn-outline" style="display:none" onclick="loadReports()">Apply</button>
+      <button onclick="downloadReport()" class="btn-primary" style="background:#E85D26;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600;">
+        ⬇️ PDF
+      </button>
+      <button onclick="downloadCSV()" class="btn-primary" style="background:#3b82f6;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600;">
+        ⬇️ CSV
+      </button>
+      <button onclick="sendSummarySMS()" class="btn-primary" style="background:#10b981;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600;">
+        📱 Send via SMS
+      </button>
+    </div>
+  </header>
+
+  <!-- Stats Cards -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
+    <div class="card" style="text-align:center;padding:20px">
+      <div style="font-size:28px;font-weight:700;color:#10b981" id="stat-revenue">$0</div>
+      <div style="color:#888;font-size:13px;margin-top:4px">Total Revenue</div>
+    </div>
+    <div class="card" style="text-align:center;padding:20px">
+      <div style="font-size:28px;font-weight:700;color:#3b82f6" id="stat-delivered">0</div>
+      <div style="color:#888;font-size:13px;margin-top:4px">Delivered Orders</div>
+    </div>
+    <div class="card" style="text-align:center;padding:20px">
+      <div style="font-size:28px;font-weight:700;color:#f59e0b" id="stat-customers">0</div>
+      <div style="color:#888;font-size:13px;margin-top:4px">Total Customers</div>
+    </div>
+    <div class="card" style="text-align:center;padding:20px">
+      <div style="font-size:28px;font-weight:700;color:#ef4444" id="stat-cancelled">0</div>
+      <div style="color:#888;font-size:13px;margin-top:4px">Cancelled Orders</div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+    <div class="card">
+      <h3 style="margin-bottom:16px;color:#E85D26">📅 Monthly Revenue</h3>
+      <canvas id="revenueChart" height="200"></canvas>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:16px;color:#E85D26">🦐 Top Products</h3>
+      <canvas id="productsChart" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- Driver Stats -->
+  <div class="card" style="margin-bottom:24px">
+    <h3 style="margin-bottom:16px;color:#E85D26">🚚 Driver Performance</h3>
+    <table class="data-table">
+      <thead>
+        <tr><th>Driver</th><th>Deliveries</th><th>Total Value</th></tr>
+      </thead>
+      <tbody id="driver-stats-body">
+        <tr><td colspan="3" class="loading-row">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<script src="/static/js/main.js"></script>
+<script>
+let revenueChart, productsChart;
+let currentDateFrom = null, currentDateTo = null;
+
+function onPresetChange() {
+  const preset = document.getElementById('date-preset').value;
+  const fromEl = document.getElementById('date-from');
+  const toEl   = document.getElementById('date-to');
+  const applyBtn = document.getElementById('apply-btn');
+
+  if (preset === 'custom') {
+    fromEl.style.display = 'inline-block';
+    toEl.style.display   = 'inline-block';
+    applyBtn.style.display = 'inline-block';
+    return;
+  }
+  fromEl.style.display = 'none';
+  toEl.style.display   = 'none';
+  applyBtn.style.display = 'none';
+
+  const today = new Date();
+  let from, to = new Date(today);
+
+  if (preset === 'thismonth') {
+    from = new Date(today.getFullYear(), today.getMonth(), 1);
+  } else if (preset === 'thisyear') {
+    from = new Date(today.getFullYear(), 0, 1);
+  } else {
+    const days = parseInt(preset);
+    from = new Date(today);
+    from.setDate(from.getDate() - days);
+  }
+
+  currentDateFrom = from.toISOString().split('T')[0];
+  currentDateTo   = to.toISOString().split('T')[0];
+  loadReports();
+}
+
+function getDateParams() {
+  const preset = document.getElementById('date-preset').value;
+  if (preset === 'custom') {
+    const from = document.getElementById('date-from').value;
+    const to   = document.getElementById('date-to').value;
+    if (from && to) { currentDateFrom = from; currentDateTo = to; }
+  }
+  if (!currentDateFrom || !currentDateTo) return '';
+  return `?from=${currentDateFrom}&to=${currentDateTo}`;
+}
+
+function downloadReport() {
+  window.location.href = '/api/reports/download' + getDateParams();
+}
+
+function downloadCSV() {
+  window.location.href = '/api/reports/download-csv' + getDateParams();
+}
+
+async function sendSummarySMS() {
+  const params = getDateParams();
+  const r = await apiFetch('/api/reports/send-summary' + params, 'POST');
+  if (r?.success) {
+    showToast(r.message || 'Summary sent via SMS!', 'success');
+  } else {
+    showToast(r?.error || 'Failed to send SMS', 'error');
+  }
+}
+
+async function loadReports() {
+  const params = getDateParams();
+  const data = await apiFetch('/api/reports/summary' + params);
+  if (!data) return;
+
+  if (!currentDateFrom) { currentDateFrom = data.date_from; currentDateTo = data.date_to; }
+
+  // Stats
+  document.getElementById('stat-revenue').textContent   = '$' + data.total_revenue.toFixed(2);
+  document.getElementById('stat-delivered').textContent = data.total_delivered;
+  document.getElementById('stat-customers').textContent = data.total_customers;
+  document.getElementById('stat-cancelled').textContent = data.total_cancelled;
+
+  // Monthly Revenue Chart
+  const months = data.monthly.map(m => m.month);
+  const revenues = data.monthly.map(m => m.revenue);
+  if (revenueChart) revenueChart.destroy();
+  revenueChart = new Chart(document.getElementById('revenueChart'), {
+    type: 'bar',
+    data: {
+      labels: months.length ? months : ['No data'],
+      datasets: [{
+        label: 'Revenue ($)',
+        data: revenues.length ? revenues : [0],
+        backgroundColor: '#E85D26',
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        x: { ticks: { color: '#888' }, grid: { display: false } }
+      }
+    }
+  });
+
+  // Top Products Chart
+  const pNames = data.top_products.map(p => p.name);
+  const pRevs  = data.top_products.map(p => p.total_revenue);
+  if (productsChart) productsChart.destroy();
+  productsChart = new Chart(document.getElementById('productsChart'), {
+    type: 'doughnut',
+    data: {
+      labels: pNames.length ? pNames : ['No data'],
+      datasets: [{
+        data: pRevs.length ? pRevs : [1],
+        backgroundColor: ['#E85D26','#3b82f6','#10b981','#f59e0b','#8b5cf6'],
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom', labels: { color: '#888', padding: 12 } } }
+    }
+  });
+
+  // Driver stats
+  const tbody = document.getElementById('driver-stats-body');
+  tbody.innerHTML = data.driver_stats.map(d => `
+    <tr>
+      <td><strong>${d.name}</strong></td>
+      <td>${d.deliveries}</td>
+      <td>$${d.total_value.toFixed(2)}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="3" class="loading-row">No data</td></tr>';
+}
+
+document.getElementById('date-preset').value = '180';
+onPresetChange();
+</script>
+</body>
+</html>

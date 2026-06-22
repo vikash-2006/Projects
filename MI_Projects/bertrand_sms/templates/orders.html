@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Orders — Bertrand's Crawfish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/css/main.css"/>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="brand">
+    <span class="brand-icon">🦞</span>
+    <div><div class="brand-name">BERTRAND'S</div><div class="brand-sub">Crawfish & Seafood</div></div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="/" class="nav-link"><span>📊</span> Dashboard</a></li>
+    <li><a href="/orders" class="nav-link active"><span>📦</span> Orders</a></li>
+    <li><a href="/customers" class="nav-link"><span>👥</span> Customers</a></li>
+    <li><a href="/drivers" class="nav-link"><span>🚚</span> Drivers</a></li>
+    <li><a href="/products" class="nav-link"><span>🦐</span> Products</a></li>
+    <li><a href="/reports" class="nav-link"><span>📈</span> Reports</a></li>
+    <li><a href="/settings" class="nav-link"><span>⚙️</span> Settings</a></li>
+  </ul>
+  <div class="sidebar-footer">SMS Management v1.0</div>
+</nav>
+<main class="main">
+  <header class="page-header">
+    <h1 class="page-title">Orders</h1>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <input type="text" id="search-filter" class="form-input" style="width:200px" placeholder="Search order # or customer…" oninput="loadOrders()"/>
+      <input type="date" id="date-from-filter" class="form-input" style="width:140px" onchange="loadOrders()"/>
+      <input type="date" id="date-to-filter" class="form-input" style="width:140px" onchange="loadOrders()"/>
+      <select id="status-filter" class="form-input" style="width:160px" onchange="loadOrders()">
+        <option value="">All Statuses</option>
+        <option value="pending">Pending</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="preparing">Preparing</option>
+        <option value="out_for_delivery">Out for Delivery</option>
+        <option value="delivered">Delivered</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+      <button class="btn btn-outline" onclick="clearFilters()">Clear</button>
+      <button class="btn btn-primary" onclick="openNewOrder()">+ New Order</button>
+    </div>
+  </header>
+
+  <!-- Bulk Action Bar -->
+  <div id="bulk-bar" class="card" style="display:none;margin-bottom:16px;padding:12px 16px;display:flex;align-items:center;gap:12px">
+    <span id="bulk-count" style="font-weight:600"></span>
+    <select id="bulk-status" class="form-input" style="width:180px">
+      <option value="pending">Pending</option>
+      <option value="confirmed">Confirmed</option>
+      <option value="preparing">Preparing</option>
+      <option value="out_for_delivery">Out for Delivery</option>
+      <option value="delivered">Delivered</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+    <button class="btn btn-primary" onclick="applyBulkStatus()">Update + Send SMS</button>
+    <button class="btn btn-outline" onclick="clearSelection()">Cancel</button>
+  </div>
+  <section class="card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="select-all" onchange="toggleSelectAll()"/></th>
+          <th>Order #</th><th>Customer</th><th>Driver</th><th>Amount</th><th>Delivery Date</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="orders-body">
+        <tr><td colspan="8" class="loading-row">Loading orders…</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<!-- New/Edit Order Modal -->
+<div id="order-modal" class="modal-overlay" style="display:none">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-header">
+      <h2>New Order</h2>
+      <button class="modal-close" onclick="closeModal('order-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Customer *</label>
+          <select id="o-customer" class="form-input" onchange="toggleNewCustomer()"></select>
+        </div>
+        <div class="form-group">
+          <label>Driver</label>
+          <select id="o-driver" class="form-input"><option value="">— Unassigned —</option></select>
+        </div>
+      </div>
+
+      <!-- New Customer fields (hidden unless "+ Add New Customer" is selected) -->
+      <div id="new-customer-fields" class="form-row" style="display:none">
+        <div class="form-group">
+          <label>New Customer Name *</label>
+          <input type="text" id="nc-name" class="form-input" placeholder="Customer name"/>
+        </div>
+        <div class="form-group">
+          <label>New Customer Phone *</label>
+          <input type="tel" id="nc-phone" class="form-input" placeholder="+1 555 000 0000"/>
+        </div>
+      </div>
+
+      <div class="form-group"><label>Delivery Address *</label><input type="text" id="o-address" class="form-input"/></div>
+      <div class="form-row">
+        <div class="form-group"><label>Delivery Date *</label><input type="date" id="o-date" class="form-input"/></div>
+        <div class="form-group"><label>Delivery Time</label><input type="text" id="o-time" class="form-input" placeholder="e.g. 2:00 PM"/></div>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea id="o-notes" class="form-textarea" rows="2"></textarea></div>
+      <hr style="border-color:rgba(255,255,255,0.1);margin:16px 0"/>
+      <label style="font-weight:600">Order Items</label>
+      <div id="items-container" style="margin-top:10px"></div>
+      <button class="btn btn-outline" style="margin-top:10px" onclick="addItemRow()">+ Add Item</button>
+      <div style="margin-top:12px;text-align:right;font-size:1.1rem;font-weight:600">
+        Total: $<span id="order-total">0.00</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('order-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveOrder()">Place Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- Status Update Modal -->
+<div id="status-modal" class="modal-overlay" style="display:none">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h2>Update Status</h2>
+      <button class="modal-close" onclick="closeModal('status-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom:12px">Order: <strong id="status-order-num"></strong></p>
+      <div class="form-group">
+        <label>New Status</label>
+        <select id="new-status" class="form-input">
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="preparing">Preparing</option>
+          <option value="out_for_delivery">Out for Delivery</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('status-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmStatusUpdate()">Update + Send SMS</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="/static/js/main.js"></script>
+<script>
+let products = [], customers = [], drivers = [], currentOrderId = null;
+
+const STATUS_COLORS = {
+  pending:'#f59e0b', confirmed:'#3b82f6', preparing:'#8b5cf6',
+  out_for_delivery:'#f97316', delivered:'#10b981', cancelled:'#ef4444'
+};
+
+async function init() {
+  [products, customers, drivers] = await Promise.all([
+    apiFetch('/api/orders/products_list'),
+    apiFetch('/api/customers/'),
+    apiFetch('/api/drivers/')
+  ]);
+  loadOrders();
+}
+
+async function loadOrders() {
+  const statusFilter = document.getElementById('status-filter').value;
+  const searchText   = document.getElementById('search-filter').value.trim().toLowerCase();
+  const dateFrom     = document.getElementById('date-from-filter').value;
+  const dateTo       = document.getElementById('date-to-filter').value;
+
+  const data = await apiFetch('/api/orders/');
+  if (!data) return;
+
+  let filtered = data;
+  if (statusFilter) filtered = filtered.filter(o => o.status === statusFilter);
+  if (searchText) {
+    filtered = filtered.filter(o =>
+      o.order_number.toLowerCase().includes(searchText) ||
+      o.customer_name.toLowerCase().includes(searchText)
+    );
+  }
+  if (dateFrom) filtered = filtered.filter(o => o.delivery_date && o.delivery_date >= dateFrom);
+  if (dateTo)   filtered = filtered.filter(o => o.delivery_date && o.delivery_date <= dateTo);
+
+  const tbody = document.getElementById('orders-body');
+  tbody.innerHTML = filtered.map(o => {
+    const color = STATUS_COLORS[o.status] || '#888';
+    return `<tr>
+      <td><input type="checkbox" class="order-checkbox" value="${o.id}" onchange="updateBulkBar()"/></td>
+      <td><strong>${o.order_number}</strong></td>
+      <td>${o.customer_name}</td>
+      <td>${o.driver_name || '—'}</td>
+      <td>$${parseFloat(o.total_amount).toFixed(2)}</td>
+      <td>${o.delivery_date || '—'}</td>
+      <td><span style="color:${color};font-weight:600;text-transform:capitalize">${o.status.replace(/_/g,' ')}</span></td>
+      <td class="actions-cell">
+        <button class="btn btn-xs btn-outline" onclick="openStatusModal(${o.id},'${o.order_number}','${o.status}')">Status</button>
+        <button class="btn btn-xs btn-outline" onclick="window.open('/api/orders/${o.id}/invoice')">🧾 Invoice</button>
+        <button class="btn btn-xs btn-danger" onclick="deleteOrder(${o.id})">Del</button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="8" class="loading-row">No orders found</td></tr>';
+}
+
+function openNewOrder() {
+  const cSel = document.getElementById('o-customer');
+  const dSel = document.getElementById('o-driver');
+  cSel.innerHTML = '<option value="__new__">➕ Add New Customer…</option>' +
+    customers.map(c=>`<option value="${c.id}">${c.name} (${c.phone})</option>`).join('');
+  dSel.innerHTML = '<option value="">— Unassigned —</option>' + drivers.map(d=>`<option value="${d.id}">${d.name}</option>`).join('');
+  document.getElementById('items-container').innerHTML = '';
+  document.getElementById('o-address').value = '';
+  document.getElementById('o-date').value = '';
+  document.getElementById('o-time').value = '';
+  document.getElementById('o-notes').value = '';
+  document.getElementById('nc-name').value = '';
+  document.getElementById('nc-phone').value = '';
+  document.getElementById('order-total').textContent = '0.00';
+
+  // Default to first existing customer if any, otherwise leave on "Add New Customer"
+  if (customers.length) cSel.value = String(customers[0].id);
+  toggleNewCustomer();
+
+  addItemRow();
+  document.getElementById('order-modal').style.display = 'flex';
+}
+
+function toggleNewCustomer() {
+  const isNew = document.getElementById('o-customer').value === '__new__';
+  document.getElementById('new-customer-fields').style.display = isNew ? 'flex' : 'none';
+}
+
+function addItemRow() {
+  const container = document.getElementById('items-container');
+  const div = document.createElement('div');
+  div.className = 'form-row';
+  div.style.marginBottom = '8px';
+  div.innerHTML = `
+    <div class="form-group" style="flex:2">
+      <select class="form-input item-product" onchange="calcTotal()">
+        ${products.map(p=>`<option value="${p.id}" data-price="${p.price}">${p.name} — $${p.price}/${p.unit}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group" style="flex:1">
+      <input type="number" class="form-input item-qty" value="1" min="0.1" step="0.1" oninput="calcTotal()" placeholder="Qty"/>
+    </div>
+    <button class="btn btn-xs btn-danger" style="margin-top:4px" onclick="this.parentElement.remove();calcTotal()">✕</button>
+  `;
+  container.appendChild(div);
+  calcTotal();
+}
+
+function calcTotal() {
+  let total = 0;
+  document.querySelectorAll('#items-container .form-row').forEach(row => {
+    const sel = row.querySelector('.item-product');
+    const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+    const price = parseFloat(sel.options[sel.selectedIndex].dataset.price) || 0;
+    total += price * qty;
+  });
+  document.getElementById('order-total').textContent = total.toFixed(2);
+}
+
+async function saveOrder() {
+  const items = [];
+  document.querySelectorAll('#items-container .form-row').forEach(row => {
+    const product_id = parseInt(row.querySelector('.item-product').value);
+    const quantity   = parseFloat(row.querySelector('.item-qty').value);
+    if (product_id && quantity > 0) items.push({ product_id, quantity });
+  });
+  if (!items.length) return showToast('Add at least one item', 'error');
+
+  const addressVal = document.getElementById('o-address').value.trim();
+  const dateVal    = document.getElementById('o-date').value;
+  if (!addressVal) return showToast('Delivery address required', 'error');
+  if (!dateVal)    return showToast('Delivery date required', 'error');
+
+  let customerId = document.getElementById('o-customer').value;
+
+  // If "Add New Customer" is selected, create the customer first
+  if (customerId === '__new__') {
+    const ncName  = document.getElementById('nc-name').value.trim();
+    const ncPhone = document.getElementById('nc-phone').value.trim();
+    if (!ncName || !ncPhone) return showToast('New customer name and phone required', 'error');
+
+    const cr = await apiFetch('/api/customers/', 'POST', { name: ncName, phone: ncPhone });
+    if (!cr?.id) return showToast(cr?.error || 'Error creating new customer', 'error');
+    customerId = cr.id;
+    customers.push({ id: cr.id, name: ncName, phone: ncPhone }); // keep local list in sync
+  }
+
+  const payload = {
+    customer_id:      parseInt(customerId),
+    driver_id:        document.getElementById('o-driver').value || null,
+    delivery_address: addressVal,
+    delivery_date:    dateVal,
+    delivery_time:    document.getElementById('o-time').value,
+    notes:            document.getElementById('o-notes').value,
+    items
+  };
+
+  const r = await apiFetch('/api/orders/', 'POST', payload);
+  if (r?.success) {
+    showToast(`Order ${r.order_number} created!`, 'success');
+    closeModal('order-modal');
+    loadOrders();
+  } else {
+    showToast(r?.error || 'Error creating order', 'error');
+  }
+}
+
+function openStatusModal(id, num, currentStatus) {
+  currentOrderId = id;
+  document.getElementById('status-order-num').textContent = num;
+  document.getElementById('new-status').value = currentStatus;
+  document.getElementById('status-modal').style.display = 'flex';
+}
+
+async function confirmStatusUpdate() {
+  const status = document.getElementById('new-status').value;
+  const r = await apiFetch(`/api/orders/${currentOrderId}/status`, 'PATCH', { status });
+  if (r?.success) {
+    const smsSent = r.sms_results?.filter(s=>s.success).length || 0;
+    showToast(`Status updated! ${smsSent} SMS sent.`, 'success');
+    closeModal('status-modal');
+    loadOrders();
+  } else {
+    showToast(r?.error || 'Error updating status', 'error');
+  }
+}
+
+async function deleteOrder(id) {
+  if (!confirm('Delete this order?')) return;
+  const r = await apiFetch(`/api/orders/${id}`, 'DELETE');
+  if (r?.success) { showToast('Order deleted', 'success'); loadOrders(); }
+}
+
+function clearFilters() {
+  document.getElementById('search-filter').value = '';
+  document.getElementById('date-from-filter').value = '';
+  document.getElementById('date-to-filter').value = '';
+  document.getElementById('status-filter').value = '';
+  loadOrders();
+}
+
+function toggleSelectAll() {
+  const checked = document.getElementById('select-all').checked;
+  document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = checked);
+  updateBulkBar();
+}
+
+function updateBulkBar() {
+  const selected = document.querySelectorAll('.order-checkbox:checked');
+  const bar = document.getElementById('bulk-bar');
+  if (selected.length > 0) {
+    bar.style.display = 'flex';
+    document.getElementById('bulk-count').textContent = `${selected.length} order(s) selected`;
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+function clearSelection() {
+  document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = false);
+  document.getElementById('select-all').checked = false;
+  updateBulkBar();
+}
+
+async function applyBulkStatus() {
+  const selected = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(cb => parseInt(cb.value));
+  if (!selected.length) return showToast('No orders selected', 'error');
+  const status = document.getElementById('bulk-status').value;
+  if (!confirm(`Update ${selected.length} order(s) to "${status.replace(/_/g,' ')}" and send SMS?`)) return;
+
+  const r = await apiFetch('/api/orders/bulk-status', 'PATCH', { order_ids: selected, status });
+  if (r?.success) {
+    showToast(`${r.updated} order(s) updated, ${r.sms_sent} SMS sent!`, 'success');
+    clearSelection();
+    loadOrders();
+  } else {
+    showToast(r?.error || 'Bulk update failed', 'error');
+  }
+}
+
+init();
+</script>
+</body>
+</html>

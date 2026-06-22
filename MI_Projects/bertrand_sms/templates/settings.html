@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Settings — Bertrand's Crawfish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/css/main.css"/>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="brand">
+    <span class="brand-icon">🦞</span>
+    <div><div class="brand-name">BERTRAND'S</div><div class="brand-sub">Crawfish & Seafood</div></div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="/" class="nav-link"><span>📊</span> Dashboard</a></li>
+    <li><a href="/orders" class="nav-link"><span>📦</span> Orders</a></li>
+    <li><a href="/customers" class="nav-link"><span>👥</span> Customers</a></li>
+    <li><a href="/drivers" class="nav-link"><span>🚚</span> Drivers</a></li>
+    <li><a href="/products" class="nav-link"><span>🦐</span> Products</a></li>
+    <li><a href="/reports" class="nav-link"><span>📈</span> Reports</a></li>
+    <li><a href="/settings" class="nav-link active"><span>⚙️</span> Settings</a></li>
+  </ul>
+  <div class="sidebar-footer">
+    SMS Management v1.0
+    <a href="/logout" style="display:block;margin-top:8px;color:#E85D26;font-size:12px;">🚪 Logout</a>
+  </div>
+</nav>
+<main class="main">
+  <header class="page-header">
+    <h1 class="page-title">Settings</h1>
+  </header>
+
+  <div style="max-width:500px">
+    <section class="card" style="margin-bottom:24px">
+      <h2 style="font-size:1.1rem;margin-bottom:4px;color:#E85D26">👤 Account Info</h2>
+      <p style="color:#888;font-size:13px;margin-bottom:16px">Logged in as <strong id="username-display">...</strong></p>
+    </section>
+
+    <section class="card">
+      <h2 style="font-size:1.1rem;margin-bottom:16px;color:#E85D26">�� Change Password</h2>
+      <div class="form-group">
+        <label>Current Password</label>
+        <input type="password" id="current-pass" class="form-input" placeholder="Enter current password"/>
+      </div>
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" id="new-pass" class="form-input" placeholder="Min 6 characters"/>
+      </div>
+      <div class="form-group">
+        <label>Confirm New Password</label>
+        <input type="password" id="confirm-pass" class="form-input" placeholder="Repeat new password"/>
+      </div>
+      <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+    </section>
+  </div>
+</main>
+<div id="toast" class="toast"></div>
+<script src="/static/js/main.js"></script>
+<script>
+// Show username
+fetch('/api/auth/me').then(r=>r.json()).then(d=>{
+  document.getElementById('username-display').textContent = d.username || 'Admin';
+}).catch(()=>{
+  document.getElementById('username-display').textContent = 'Admin';
+});
+
+async function changePassword() {
+  const current = document.getElementById('current-pass').value;
+  const newPass  = document.getElementById('new-pass').value;
+  const confirm  = document.getElementById('confirm-pass').value;
+  if (!current || !newPass || !confirm) return showToast('All fields required', 'error');
+  const r = await apiFetch('/api/auth/change-password', 'POST', {
+    current_password: current,
+    new_password:     newPass,
+    confirm_password: confirm
+  });
+  if (r?.success) {
+    showToast('Password changed successfully!', 'success');
+    document.getElementById('current-pass').value = '';
+    document.getElementById('new-pass').value = '';
+    document.getElementById('confirm-pass').value = '';
+  } else {
+    showToast(r?.error || 'Error changing password', 'error');
+  }
+}
+</script>
+</body>
+</html>

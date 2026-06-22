@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Products — Bertrand's Crawfish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/css/main.css"/>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="brand">
+    <span class="brand-icon">🦞</span>
+    <div><div class="brand-name">BERTRAND'S</div><div class="brand-sub">Crawfish & Seafood</div></div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="/" class="nav-link"><span>📊</span> Dashboard</a></li>
+    <li><a href="/orders" class="nav-link"><span>📦</span> Orders</a></li>
+    <li><a href="/customers" class="nav-link"><span>👥</span> Customers</a></li>
+    <li><a href="/drivers" class="nav-link"><span>🚚</span> Drivers</a></li>
+    <li><a href="/products" class="nav-link active"><span>🦐</span> Products</a></li>
+    <li><a href="/reports" class="nav-link"><span>📈</span> Reports</a></li>
+    <li><a href="/settings" class="nav-link"><span>⚙️</span> Settings</a></li>
+  </ul>
+  <div class="sidebar-footer">SMS Management v1.0</div>
+</nav>
+<main class="main">
+  <header class="page-header">
+    <h1 class="page-title">Products</h1>
+    <button class="btn btn-primary" onclick="openForm()">+ Add Product</button>
+  </header>
+  <section class="card">
+    <table class="data-table">
+      <thead>
+        <tr><th>Name</th><th>Description</th><th>Price</th><th>Unit</th><th>Stock</th><th>Actions</th></tr>
+      </thead>
+      <tbody id="products-body">
+        <tr><td colspan="6" class="loading-row">Loading…</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+<div id="prod-modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="prod-modal-title">Add Product</h2>
+      <button class="modal-close" onclick="closeModal('prod-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="p-id"/>
+      <div class="form-row">
+        <div class="form-group"><label>Name *</label><input type="text" id="p-name" class="form-input" placeholder="e.g. Gulf Shrimp"/></div>
+        <div class="form-group"><label>Unit *</label>
+          <select id="p-unit" class="form-input">
+            <option value="lb">lb</option>
+            <option value="sack">sack</option>
+            <option value="dozen">dozen</option>
+            <option value="kg">kg</option>
+            <option value="piece">piece</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Price ($) *</label><input type="number" id="p-price" class="form-input" step="0.01" min="0" placeholder="0.00"/></div>
+        <div class="form-group"><label>Stock Qty</label><input type="number" id="p-stock" class="form-input" step="0.01" min="0" placeholder="0"/></div>
+      </div>
+      <div class="form-group"><label>Description</label><textarea id="p-description" class="form-textarea" rows="2" placeholder="Brief description…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('prod-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProduct()">Save</button>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+<script src="/static/js/main.js"></script>
+<script>
+async function loadProducts() {
+  const data = await apiFetch('/api/products/');
+  if (!data) return;
+  const tbody = document.getElementById('products-body');
+  tbody.innerHTML = data.map(p => `
+    <tr style="${p.stock_qty < 10 ? 'background:rgba(239,68,68,0.08);' : ''}">
+      <td><strong>${p.name}</strong></td>
+      <td>${p.description || '—'}</td>
+      <td>$${p.price.toFixed(2)}</td>
+      <td>${p.unit}</td>
+      <td style="${p.stock_qty < 10 ? 'color:#ef4444;font-weight:600;' : ''}">${p.stock_qty} ${p.unit} ${p.stock_qty < 10 ? '⚠️' : ''}</td>
+      <td class="actions-cell">
+        <button class="btn btn-xs btn-outline" onclick='editProduct(${JSON.stringify(p)})'>Edit</button>
+        <button class="btn btn-xs btn-danger" onclick="deleteProduct(${p.id})">Del</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="6" class="loading-row">No products yet</td></tr>';
+}
+function openForm() {
+  document.getElementById('prod-modal-title').textContent = 'Add Product';
+  ['p-id','p-name','p-price','p-stock','p-description'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('p-unit').value = 'lb';
+  document.getElementById('prod-modal').style.display = 'flex';
+}
+function editProduct(p) {
+  document.getElementById('prod-modal-title').textContent = 'Edit Product';
+  document.getElementById('p-id').value = p.id;
+  document.getElementById('p-name').value = p.name;
+  document.getElementById('p-price').value = p.price;
+  document.getElementById('p-unit').value = p.unit;
+  document.getElementById('p-stock').value = p.stock_qty;
+  document.getElementById('p-description').value = p.description || '';
+  document.getElementById('prod-modal').style.display = 'flex';
+}
+async function saveProduct() {
+  const id = document.getElementById('p-id').value;
+  const payload = {
+    name: document.getElementById('p-name').value.trim(),
+    price: parseFloat(document.getElementById('p-price').value),
+    unit: document.getElementById('p-unit').value,
+    stock_qty: parseFloat(document.getElementById('p-stock').value) || 0,
+    description: document.getElementById('p-description').value.trim(),
+  };
+  if (!payload.name) return showToast('Name is required', 'error');
+  if (isNaN(payload.price)) return showToast('Valid price is required', 'error');
+  const url = id ? `/api/products/${id}` : '/api/products/';
+  const method = id ? 'PUT' : 'POST';
+  const r = await apiFetch(url, method, payload);
+  if (r?.success || r?.id) { showToast('Product saved!', 'success'); closeModal('prod-modal'); loadProducts(); }
+  else showToast(r?.error || 'Error saving product', 'error');
+}
+async function deleteProduct(id) {
+  if (!confirm('Delete this product?')) return;
+  const r = await apiFetch(`/api/products/${id}`, 'DELETE');
+  if (r?.success) { showToast('Deleted', 'success'); loadProducts(); }
+}
+loadProducts();
+</script>
+</body>
+</html>

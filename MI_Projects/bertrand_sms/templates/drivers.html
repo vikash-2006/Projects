@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Drivers — Bertrand's Crawfish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/css/main.css"/>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="brand">
+    <span class="brand-icon">🦞</span>
+    <div><div class="brand-name">BERTRAND'S</div><div class="brand-sub">Crawfish & Seafood</div></div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="/" class="nav-link"><span>📊</span> Dashboard</a></li>
+    <li><a href="/orders" class="nav-link"><span>📦</span> Orders</a></li>
+    <li><a href="/customers" class="nav-link"><span>👥</span> Customers</a></li>
+    <li><a href="/drivers" class="nav-link active"><span>🚚</span> Drivers</a></li>
+    <li><a href="/products" class="nav-link"><span>🦐</span> Products</a></li>
+    <li><a href="/reports" class="nav-link"><span>📈</span> Reports</a></li>
+    <li><a href="/settings" class="nav-link"><span>⚙️</span> Settings</a></li>
+  </ul>
+  <div class="sidebar-footer">SMS Management v1.0</div>
+</nav>
+
+<main class="main">
+  <header class="page-header">
+    <h1 class="page-title">Drivers</h1>
+    <button class="btn btn-primary" onclick="openForm()">+ Add Driver</button>
+  </header>
+
+  <div class="drivers-grid" id="drivers-grid">
+    <div class="loading-row">Loading drivers…</div>
+  </div>
+</main>
+
+<div id="driver-modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="driver-modal-title">Add Driver</h2>
+      <button class="modal-close" onclick="closeModal('driver-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="d-id"/>
+      <div class="form-row">
+        <div class="form-group"><label>Name *</label><input type="text" id="d-name" class="form-input"/></div>
+        <div class="form-group"><label>Phone *</label><input type="tel" id="d-phone" class="form-input" placeholder="+1 555 000 0000"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Email</label><input type="email" id="d-email" class="form-input"/></div>
+        <div class="form-group"><label>Vehicle</label><input type="text" id="d-vehicle" class="form-input" placeholder="2020 Ford F-150"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>License #</label><input type="text" id="d-license" class="form-input"/></div>
+        <div class="form-group"><label>Status</label>
+          <select id="d-status" class="form-input">
+            <option value="available">Available</option>
+            <option value="on_delivery">On Delivery</option>
+            <option value="off_duty">Off Duty</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('driver-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDriver()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="/static/js/main.js"></script>
+<script>
+const STATUS_COLORS = {available:'#22c55e', on_delivery:'#f59e0b', off_duty:'#94a3b8'};
+
+async function loadDrivers() {
+  const data = await apiFetch('/api/drivers/');
+  if (!data) return;
+  const grid = document.getElementById('drivers-grid');
+  grid.innerHTML = data.map(d => `
+    <div class="driver-card">
+      <div class="driver-avatar">${d.name[0].toUpperCase()}</div>
+      <div class="driver-info">
+        <h3>${d.name}</h3>
+        <p>${d.phone}</p>
+        <p>${d.vehicle||'No vehicle listed'}</p>
+      </div>
+      <div class="driver-status" style="background:${STATUS_COLORS[d.status]||'#94a3b8'}">
+        ${d.status.replace('_',' ').toUpperCase()}
+      </div>
+      <div class="driver-actions">
+        <button class="btn btn-xs btn-outline" onclick='editDriver(${JSON.stringify(d)})'>Edit</button>
+        <button class="btn btn-xs btn-danger" onclick="deleteDriver(${d.id})">Del</button>
+      </div>
+    </div>
+  `).join('') || '<div class="loading-row">No drivers yet</div>';
+}
+
+function openForm() {
+  document.getElementById('driver-modal-title').textContent = 'Add Driver';
+  ['d-id','d-name','d-phone','d-email','d-vehicle','d-license'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+  document.getElementById('d-status').value = 'available';
+  document.getElementById('driver-modal').style.display = 'flex';
+}
+
+function editDriver(d) {
+  document.getElementById('driver-modal-title').textContent = 'Edit Driver';
+  document.getElementById('d-id').value      = d.id;
+  document.getElementById('d-name').value    = d.name;
+  document.getElementById('d-phone').value   = d.phone;
+  document.getElementById('d-email').value   = d.email||'';
+  document.getElementById('d-vehicle').value = d.vehicle||'';
+  document.getElementById('d-license').value = d.license||'';
+  document.getElementById('d-status').value  = d.status;
+  document.getElementById('driver-modal').style.display = 'flex';
+}
+
+async function saveDriver() {
+  const id = document.getElementById('d-id').value;
+  const payload = {
+    name:    document.getElementById('d-name').value,
+    phone:   document.getElementById('d-phone').value,
+    email:   document.getElementById('d-email').value,
+    vehicle: document.getElementById('d-vehicle').value,
+    license: document.getElementById('d-license').value,
+    status:  document.getElementById('d-status').value,
+  };
+  if (!payload.name || !payload.phone) return showToast('Name and phone required','error');
+  const url    = id ? `/api/drivers/${id}` : '/api/drivers/';
+  const method = id ? 'PUT' : 'POST';
+  const r = await apiFetch(url, method, payload);
+  if (r?.success || r?.id) {
+    showToast('Driver saved!','success');
+    closeModal('driver-modal');
+    loadDrivers();
+  }
+}
+
+async function deleteDriver(id) {
+  if (!confirm('Delete this driver?')) return;
+  const r = await apiFetch(`/api/drivers/${id}`,'DELETE');
+  if (r?.success) { showToast('Deleted','success'); loadDrivers(); }
+}
+
+loadDrivers();
+</script>
+</body>
+</html>
