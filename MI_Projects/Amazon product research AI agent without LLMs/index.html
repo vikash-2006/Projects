@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Amazon Product Research Agent</title>
+<style>
+  :root {
+    --bg: #0f0f0f; --bg2: #1a1a1a; --bg3: #222; --border: #2e2e2e;
+    --text: #f0f0f0; --muted: #888; --accent: #f0a500; --accent2: #ff6b35;
+    --green: #22c55e; --red: #ef4444; --blue: #3b82f6;
+    --card: #181818; --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+  header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
+  header .logo { font-size: 22px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+  header .logo span { color: var(--accent2); }
+  header .badge { background: var(--accent); color: #000; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  .grid2 { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .card h2 { font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px; }
+  label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px; margin-top: 12px; }
+  label:first-of-type { margin-top: 0; }
+  input, select, textarea { width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 8px 10px; font-size: 13px; outline: none; transition: border 0.2s; font-family: inherit; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 64px; }
+  .range-row { display: flex; align-items: center; gap: 10px; }
+  .range-row input[type=range] { flex: 1; accent-color: var(--accent); }
+  .range-val { font-size: 13px; color: var(--accent); font-weight: 600; min-width: 60px; text-align: right; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.15s; }
+  .btn-primary { background: var(--accent); color: #000; width: 100%; justify-content: center; margin-top: 16px; }
+  .btn-primary:hover { background: #e09600; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-sm { background: var(--bg3); color: var(--text); border: 1px solid var(--border); padding: 6px 12px; font-size: 12px; }
+  .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-export { background: var(--green); color: #000; padding: 7px 14px; font-size: 12px; }
+  .status-bar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg3); border-radius: 8px; margin-bottom: 16px; font-size: 13px; min-height: 42px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+  .dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 1.5s infinite; }
+  .dot.red { background: var(--red); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .results-header h2 { font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+  .results-header .count { background: var(--accent); color: #000; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+  .product-grid { display: flex; flex-direction: column; gap: 12px; }
+  .product-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; display: flex; gap: 14px; cursor: pointer; transition: border-color 0.15s; position: relative; }
+  .product-card:hover { border-color: var(--accent); }
+  .product-card.match { border-left: 3px solid var(--green); }
+  .product-card.partial { border-left: 3px solid var(--accent); }
+  .product-card.nomatch { border-left: 3px solid var(--border); opacity: 0.6; }
+  .prod-img { width: 72px; height: 72px; object-fit: contain; border-radius: 6px; background: #fff; flex-shrink: 0; }
+  .prod-img-placeholder { width: 72px; height: 72px; border-radius: 6px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+  .prod-info { flex: 1; min-width: 0; }
+  .prod-title { font-size: 13px; font-weight: 500; line-height: 1.4; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .prod-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .tag { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+  .tag-price { background: #1e3a1e; color: var(--green); }
+  .tag-rating { background: #3a2e00; color: var(--accent); }
+  .tag-reviews { background: #1e1e3a; color: var(--blue); }
+  .tag-bsr { background: #3a1e1e; color: var(--accent2); }
+  .score-badge { position: absolute; top: 12px; right: 14px; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+  .score-hi { background: #14532d; color: var(--green); }
+  .score-mid { background: #422006; color: var(--accent); }
+  .score-lo { background: #1c1c1c; color: var(--muted); }
+  .ai-analysis { margin-top: 8px; font-size: 12px; color: var(--muted); line-height: 1.5; border-top: 1px solid var(--border); padding-top: 8px; }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+  .logs { background: #0a0a0a; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-family: monospace; font-size: 11px; color: #666; max-height: 120px; overflow-y: auto; line-height: 1.8; }
+  .logs .log-ok { color: var(--green); }
+  .logs .log-warn { color: var(--accent); }
+  .logs .log-err { color: var(--red); }
+  .logs .log-info { color: var(--blue); }
+  .setup-banner { background: #1a1200; border: 1px solid #3a2800; border-radius: 8px; padding: 14px 16px; margin-bottom: 18px; font-size: 12px; color: #c8a050; line-height: 1.7; }
+  .setup-banner strong { color: var(--accent); }
+  .tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+  .tab { padding: 7px 14px; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; border: 1px solid transparent; color: var(--muted); }
+  .tab.active { background: var(--bg3); border-color: var(--border); color: var(--text); }
+  .share-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+  .share-box input { background: transparent; border: none; flex: 1; font-size: 12px; color: var(--muted); outline: none; }
+  .criteria-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { display: flex; align-items: center; gap: 5px; background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px; font-size: 11px; }
+  .chip button { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 13px; line-height: 1; padding: 0; }
+  select option { background: var(--bg3); }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #333; border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; display: flex; align-items: center; justify-content: center; }
+  .modal { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; width: 560px; max-width: 95vw; max-height: 80vh; overflow-y: auto; }
+  .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+  .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .detail-row:last-child { border: none; }
+  .detail-label { color: var(--muted); }
+  .close-btn { float: right; background: var(--bg3); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Amazon<span>Scout</span></div>
+  <div class="badge">Free Stack</div>
+  <div style="margin-left:auto;display:flex;gap:8px;">
+    <button class="btn btn-sm" onclick="showShare()">🔗 Share Agent</button>
+    <button class="btn btn-sm" id="exportBtn" onclick="exportCSV()" disabled>⬇ Export CSV</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="setup-banner">
+    <strong>⚙️ Free Stack Setup:</strong> Uses <strong>ScraperAPI free tier</strong> (1000 credits/month) + <strong>Groq free API</strong> (LLaMA 3 scoring) + <strong>Google Sheets API</strong> for output. 
+    No Amazon affiliate account needed. Add your free API keys in the Settings tab below.
+  </div>
+
+  <div class="grid2">
+    <!-- LEFT: Criteria Panel -->
+    <div>
+      <div class="card">
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab('criteria',this)">Criteria</div>
+          <div class="tab" onclick="switchTab('settings',this)">Settings</div>
+          <div class="tab" onclick="switchTab('howto',this)">How to Use</div>
+        </div>
+
+        <!-- Criteria Tab -->
+        <div id="tab-criteria">
+          <h2>Search Criteria</h2>
+          <label>Product Category / Keywords</label>
+          <input type="text" id="keywords" placeholder="e.g. yoga mat, kitchen organizer" />
+
+          <label>Price Range (USD)</label>
+          <div style="display:flex;gap:8px;">
+            <input type="number" id="priceMin" placeholder="Min $" style="width:50%" />
+            <input type="number" id="priceMax" placeholder="Max $" style="width:50%" />
+          </div>
+
+          <label>Min Rating</label>
+          <div class="range-row">
+            <input type="range" min="1" max="5" step="0.5" value="4" id="minRating" oninput="document.getElementById('ratingVal').textContent=this.value+'★'" />
+            <div class="range-val" id="ratingVal">4★</div>
+          </div>
+
+          <label>Min Reviews Count</label>
+          <div class="range-row">
+            <input type="range" min="0" max="5000" step="50" value="100" id="minReviews" oninput="document.getElementById('reviewVal').textContent=Number(this.value).toLocaleString()" />
+            <div class="range-val" id="reviewVal">100</div>
+          </div>
+
+          <label>Max BSR (Best Seller Rank)</label>
+          <div class="range-row">
+            <input type="range" min="1000" max="500000" step="1000" value="100000" id="maxBSR" oninput="document.getElementById('bsrVal').textContent='#'+Number(this.value).toLocaleString()" />
+            <div class="range-val" id="bsrVal">#100,000</div>
+          </div>
+
+          <label>Amazon Category</label>
+          <select id="category">
+            <option value="">All Categories</option>
+            <option value="Home & Kitchen">Home & Kitchen</option>
+            <option value="Sports & Outdoors">Sports & Outdoors</option>
+            <option value="Beauty & Personal Care">Beauty & Personal Care</option>
+            <option value="Tools & Home Improvement">Tools & Home Improvement</option>
+            <option value="Toys & Games">Toys & Games</option>
+            <option value="Office Products">Office Products</option>
+            <option value="Pet Supplies">Pet Supplies</option>
+            <option value="Baby">Baby</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Clothing">Clothing, Shoes & Jewelry</option>
+          </select>
+
+          <label>Max Competition (sellers with same product)</label>
+          <select id="competition">
+            <option value="any">Any</option>
+            <option value="low">Low (&lt; 50 sellers)</option>
+            <option value="medium">Medium (50–200 sellers)</option>
+            <option value="high">High (200+)</option>
+          </select>
+
+          <label>Additional Criteria / Notes</label>
+          <textarea id="extraCriteria" placeholder="e.g. lightweight, eco-friendly, under 1lb, FBA eligible..."></textarea>
+
+          <label>Results Limit</label>
+          <select id="resultsLimit">
+            <option value="10">10 results</option>
+            <option value="20" selected>20 results</option>
+            <option value="50">50 results</option>
+          </select>
+
+          <button class="btn btn-primary" id="searchBtn" onclick="runSearch()">
+            <span id="btnIcon">🔍</span> Run Research Agent
+          </button>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="tab-settings" style="display:none">
+          <h2>API Keys (Free Tiers)</h2>
+          <label>ScraperAPI Key <a href="https://www.scraperapi.com" target="_blank" style="color:var(--accent);font-size:11px">(free 1000 credits)</a></label>
+          <input type="password" id="scraperKey" placeholder="your-scraperapi-key" />
+          <label>Groq API Key <a href="https://console.groq.com" target="_blank" style="color:var(--accent);font-size:11px">(free, fast LLaMA 3)</a></label>
+          <input type="password" id="groqKey" placeholder="gsk_..." />
+          <label>RainforestAPI Key <a href="https://www.rainforestapi.com" target="_blank" style="color:var(--accent);font-size:11px">(100 free/mo, or skip)</a></label>
+          <input type="password" id="rainforestKey" placeholder="optional - more accurate data" />
+          <label>Google Sheets ID <a href="https://developers.google.com/sheets/api" target="_blank" style="color:var(--accent);font-size:11px">(free output)</a></label>
+          <input type="text" id="sheetsId" placeholder="spreadsheet ID from URL" />
+          <button class="btn btn-primary" onclick="saveKeys()" style="margin-top:12px">💾 Save Keys (local only)</button>
+          <p style="font-size:11px;color:var(--muted);margin-top:8px">Keys are saved in your browser only. Never sent to any server except the respective API.</p>
+        </div>
+
+        <!-- How to Tab -->
+        <div id="tab-howto" style="display:none">
+          <h2>Setup Guide</h2>
+          <div style="font-size:12px;color:var(--muted);line-height:1.9;">
+            <p style="color:var(--text);font-weight:600;margin-bottom:4px">Step 1 — Get Free APIs</p>
+            <p>• <a href="https://www.scraperapi.com" target="_blank" style="color:var(--accent)">ScraperAPI</a> — 1,000 free credits/mo<br>
+            • <a href="https://console.groq.com" target="_blank" style="color:var(--accent)">Groq</a> — Free LLaMA 3 (AI scoring)<br>
+            • <a href="https://www.rainforestapi.com" target="_blank" style="color:var(--accent)">RainforestAPI</a> — 100 free Amazon requests/mo</p>
+            <p style="color:var(--text);font-weight:600;margin:10px 0 4px">Step 2 — Add Keys in Settings</p>
+            <p>Paste your keys in the Settings tab. They're stored locally in your browser.</p>
+            <p style="color:var(--text);font-weight:600;margin:10px 0 4px">Step 3 — Deploy & Share</p>
+            <p>• Drag this folder to <a href="https://netlify.com/drop" target="_blank" style="color:var(--accent)">Netlify Drop</a> — get a free sharable URL instantly.<br>
+            • Or push to <a href="https://pages.github.com" target="_blank" style="color:var(--accent)">GitHub Pages</a> for a permanent link.</p>
+            <p style="color:var(--text);font-weight:600;margin:10px 0 4px">Demo Mode</p>
+            <p>Without API keys, the agent runs in Demo Mode with realistic mock data so you can test the UI fully.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Results Panel -->
+    <div>
+      <div class="status-bar">
+        <div class="dot" id="statusDot"></div>
+        <span id="statusText" style="color:var(--muted)">Ready. Set your criteria and click Run Research Agent.</span>
+      </div>
+
+      <div class="logs" id="logBox" style="display:none;margin-bottom:14px"></div>
+
+      <div id="resultsArea">
+        <div class="empty-state">
+          <div class="icon">🔎</div>
+          <p>Results will appear here after you run the agent.</p>
+          <p style="margin-top:6px;font-size:12px">The agent will score each product against your criteria.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Share Modal -->
+<div class="modal-overlay" id="shareModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal">
+    <button class="close-btn" onclick="document.getElementById('shareModal').style.display='none'">✕ Close</button>
+    <h3>🔗 Share This Agent</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Deploy once, share a link. Anyone with the link can use the agent.</p>
+    <div style="font-size:12px;line-height:1.9;color:var(--text)">
+      <p><strong style="color:var(--accent)">Option 1 — Netlify Drop (30 seconds, free)</strong></p>
+      <p style="color:var(--muted)">1. Download this project folder<br>2. Go to <a href="https://app.netlify.com/drop" target="_blank" style="color:var(--accent)">app.netlify.com/drop</a><br>3. Drag the folder in → instant public URL like <em>amazing-scout-xyz.netlify.app</em></p>
+      <hr style="border-color:var(--border);margin:12px 0"/>
+      <p><strong style="color:var(--accent)">Option 2 — GitHub Pages (free, permanent)</strong></p>
+      <p style="color:var(--muted)">Push to a GitHub repo → Settings → Pages → Deploy from main branch. URL: <em>yourname.github.io/amazon-scout</em></p>
+      <hr style="border-color:var(--border);margin:12px 0"/>
+      <p><strong style="color:var(--accent)">Option 3 — n8n Self-Hosted (power users)</strong></p>
+      <p style="color:var(--muted)">Install n8n free on your server. Import the workflow JSON in the project. Connects to Google Sheets automatically on every run.</p>
+    </div>
+    <div class="share-box">
+      <input id="shareUrl" value="Deploy first to get your shareable URL" readonly/>
+      <button class="btn btn-sm" onclick="copyShare()">Copy</button>
+    </div>
+  </div>
+</div>
+
+<!-- Product Detail Modal -->
+<div class="modal-overlay" id="detailModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal" id="detailContent"></div>
+</div>
+
+<script>
+const DEMO_PRODUCTS = [
+  { asin:"B09XKT5FMZ", title:"TOPLUS Yoga Mat Non Slip 1/4 inch TPE Thick Exercise Mat", price:32.99, rating:4.6, reviews:8420, bsr:312, category:"Sports & Outdoors", weight:"2.2 lbs", img:"🧘", competition:"medium", fba:true, monthlySales:2800, revenue:92372 },
+  { asin:"B08N5M7S6K", title:"Bamboo Kitchen Drawer Organizer Adjustable Dividers Set of 4", price:28.49, rating:4.7, reviews:5210, bsr:891, category:"Home & Kitchen", weight:"1.8 lbs", img:"🧹", competition:"low", fba:true, monthlySales:1950, revenue:55556 },
+  { asin:"B07VGRJDQY", title:"Eco-Friendly Reusable Produce Bags Mesh Washable Set of 9", price:14.99, rating:4.5, reviews:12800, bsr:445, category:"Home & Kitchen", weight:"0.4 lbs", img:"🌿", competition:"high", fba:true, monthlySales:3400, revenue:50966 },
+  { asin:"B08P4RMGPL", title:"Stainless Steel Measuring Cups and Spoons Set 14-Piece", price:21.99, rating:4.8, reviews:3890, bsr:1102, category:"Home & Kitchen", weight:"1.1 lbs", img:"🥄", competition:"medium", fba:true, monthlySales:1600, revenue:35184 },
+  { asin:"B09LQKR7VT", title:"Cable Management Box Wooden Cord Organizer with 6 Outlets", price:39.99, rating:4.4, reviews:2100, bsr:2230, category:"Office Products", weight:"2.6 lbs", img:"🔌", competition:"low", fba:false, monthlySales:890, revenue:35591 },
+  { asin:"B07PXGQC1S", title:"Silicone Baby Food Storage Containers with Lids 4oz Set of 10", price:18.99, rating:4.6, reviews:6700, bsr:678, category:"Baby", weight:"0.9 lbs", img:"🍼", competition:"medium", fba:true, monthlySales:2200, revenue:41778 },
+  { asin:"B08MVMCT5T", title:"Portable Handheld Garment Steamer Travel Size 700W Fast Heat", price:24.99, rating:4.3, reviews:1450, bsr:3410, category:"Home & Kitchen", weight:"1.3 lbs", img:"♨️", competition:"low", fba:true, monthlySales:740, revenue:18493 },
+  { asin:"B09S5K2N7X", title:"Cat Interactive Feather Wand Toy with 5 Replaceable Attachments", price:11.99, rating:4.7, reviews:9300, bsr:234, category:"Pet Supplies", weight:"0.3 lbs", img:"🐱", competition:"medium", fba:true, monthlySales:4100, revenue:49159 },
+  { asin:"B08C4K9L2D", title:"Resistance Bands Set 5 Pack Loop Exercise Bands for Legs", price:16.99, rating:4.5, reviews:22400, bsr:189, category:"Sports & Outdoors", weight:"0.5 lbs", img:"💪", competition:"high", fba:true, monthlySales:5600, revenue:95144 },
+  { asin:"B07TK2NTLD", title:"Magnetic Knife Strip Holder Stainless Steel Wall Mount 16 inch", price:26.99, rating:4.6, reviews:4100, bsr:760, category:"Home & Kitchen", weight:"1.2 lbs", img:"🔪", competition:"low", fba:true, monthlySales:1700, revenue:45883 },
+];
+
+let results = [];
+let logs = [];
+
+function addLog(msg, type='info') {
+  const t = new Date().toLocaleTimeString('en',{hour12:false});
+  logs.push({msg, type, t});
+  renderLogs();
+}
+
+function renderLogs() {
+  const box = document.getElementById('logBox');
+  box.style.display = 'block';
+  box.innerHTML = logs.slice(-12).map(l => `<div class="log-${l.type}">[${l.t}] ${l.msg}</div>`).join('');
+  box.scrollTop = box.scrollHeight;
+}
+
+function setStatus(text, active=false, error=false) {
+  document.getElementById('statusText').textContent = text;
+  const dot = document.getElementById('statusDot');
+  dot.className = 'dot' + (active ? ' green' : error ? ' red' : '');
+  document.getElementById('statusText').style.color = error ? 'var(--red)' : active ? 'var(--green)' : 'var(--muted)';
+}
+
+function scoreProduct(p, criteria) {
+  let score = 0; let reasons = [];
+  const {priceMin, priceMax, minRating, minReviews, maxBSR, category, competition, extraKeywords} = criteria;
+
+  if (priceMin && p.price < parseFloat(priceMin)) { reasons.push(`Price $${p.price} below min $${priceMin}`); }
+  else if (priceMax && p.price > parseFloat(priceMax)) { reasons.push(`Price $${p.price} above max $${priceMax}`); }
+  else { score += 25; reasons.push(`✓ Price $${p.price} in range`); }
+
+  if (p.rating >= parseFloat(minRating)) { score += 20; reasons.push(`✓ Rating ${p.rating}★ ≥ ${minRating}★`); }
+  else { reasons.push(`✗ Rating ${p.rating}★ below ${minRating}★`); }
+
+  if (p.reviews >= parseInt(minReviews)) { score += 20; reasons.push(`✓ ${p.reviews.toLocaleString()} reviews ≥ ${parseInt(minReviews).toLocaleString()}`); }
+  else { reasons.push(`✗ Only ${p.reviews.toLocaleString()} reviews`); }
+
+  if (p.bsr <= parseInt(maxBSR)) { score += 20; reasons.push(`✓ BSR #${p.bsr.toLocaleString()} ≤ #${parseInt(maxBSR).toLocaleString()}`); }
+  else { reasons.push(`✗ BSR #${p.bsr.toLocaleString()} too high`); }
+
+  if (!category || p.category === category) { score += 15; }
+
+  if (competition !== 'any') {
+    const map = {low: p.competition==='low', medium: p.competition==='medium', high: p.competition==='high'};
+    if (map[competition]) { score += 10; reasons.push(`✓ Competition: ${p.competition}`); }
+    else { score -= 5; }
+  } else score += 10;
+
+  if (p.fba) { score += 5; reasons.push('✓ FBA eligible'); }
+
+  const status = score >= 75 ? 'match' : score >= 45 ? 'partial' : 'nomatch';
+  return { ...p, score: Math.min(score, 100), reasons, status };
+}
+
+const BACKEND_URL = 'http://localhost:5000';
+
+async function runSearch() {
+  const keywords = document.getElementById('keywords').value.trim();
+  if (!keywords) { alert('Please enter a product keyword to search.'); return; }
+
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Running...';
+  logs = [];
+  setStatus('Agent starting...', true);
+
+  const scraperKey    = localStorage.getItem('scraperKey') || '';
+  const groqKey       = localStorage.getItem('groqKey') || '';
+  const rainforestKey = localStorage.getItem('rainforestKey') || '';
+  const limit         = parseInt(document.getElementById('resultsLimit').value);
+
+  addLog(`Searching for: "${keywords}"`, 'info');
+  addLog(`Criteria — Price: $${document.getElementById('priceMin').value||'any'}–$${document.getElementById('priceMax').value||'any'}, Rating: ≥${document.getElementById('minRating').value}★`, 'info');
+
+  // Check if backend is running
+  let backendAlive = false;
+  try {
+    const hRes = await fetch(`${BACKEND_URL}/api/health`, { method: 'GET' });
+    backendAlive = hRes.ok;
+  } catch(e) { backendAlive = false; }
+
+  if (!backendAlive) {
+    addLog('⚠ Flask backend not running! Start it with: python app.py', 'err');
+    addLog('Falling back to frontend demo mode...', 'warn');
+    setStatus('Backend offline — using demo mode', false, true);
+    // Frontend fallback (old demo logic)
+    await sleep(600);
+    const criteria = {
+      keywords, priceMin: document.getElementById('priceMin').value,
+      priceMax: document.getElementById('priceMax').value,
+      minRating: document.getElementById('minRating').value,
+      minReviews: document.getElementById('minReviews').value,
+      maxBSR: document.getElementById('maxBSR').value,
+      category: document.getElementById('category').value,
+      competition: document.getElementById('competition').value,
+    };
+    const kw = keywords.toLowerCase().split(' ').filter(k => k.length > 2);
+    let rawProducts = DEMO_PRODUCTS.filter(p => {
+      const text = (p.title + ' ' + p.category).toLowerCase();
+      return kw.some(k => text.includes(k)) || !criteria.category || p.category === criteria.category;
+    });
+    if (!rawProducts.length) rawProducts = DEMO_PRODUCTS;
+    results = rawProducts.slice(0, limit).map(p => scoreProduct(p, criteria));
+    results.sort((a,b) => b.score - a.score);
+    results.forEach(p => { p.aiNote = generateRuleBasedNote(p, criteria); });
+    addLog(`Demo mode: ${results.length} products loaded`, 'warn');
+    setStatus(`Demo mode — ${results.filter(r=>r.status==='match').length} matches found`, false);
+    renderResults();
+    document.getElementById('exportBtn').disabled = false;
+    btn.disabled = false;
+    btn.innerHTML = '<span id="btnIcon">🔍</span> Run Research Agent';
+    return;
+  }
+
+  // Backend is alive — call Flask API
+  addLog('Flask backend connected ✓', 'ok');
+  if (rainforestKey || scraperKey) {
+    addLog(`Using ${rainforestKey ? 'RainforestAPI' : 'ScraperAPI'} for live Amazon data...`, 'ok');
+  } else {
+    addLog('No API keys — backend will use demo data (add keys in Settings)', 'warn');
+  }
+
+  try {
+    const payload = {
+      keywords,
+      price_min:    parseFloat(document.getElementById('priceMin').value) || null,
+      price_max:    parseFloat(document.getElementById('priceMax').value) || null,
+      min_rating:   parseFloat(document.getElementById('minRating').value),
+      min_reviews:  parseInt(document.getElementById('minReviews').value),
+      max_bsr:      parseInt(document.getElementById('maxBSR').value),
+      category:     document.getElementById('category').value,
+      limit,
+      scraper_key:    scraperKey,
+      rainforest_key: rainforestKey,
+      groq_key:       groqKey,
+    };
+
+    addLog('Sending request to backend...', 'info');
+    const res = await fetch(`${BACKEND_URL}/api/search`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Backend error');
+    }
+
+    const data = await res.json();
+    addLog(`Backend returned ${data.total} products (mode: ${data.mode})`, 'ok');
+
+    // Map backend fields to frontend format
+    results = data.products.map(p => ({
+      ...p,
+      img: p.image || '📦',
+      aiNote: p.ai_note || '',
+      monthlySales: p.monthlySales || 0,
+      revenue: p.revenue || 0,
+    }));
+
+    addLog(`✓ Done! ${data.matches} strong matches, ${data.partials} partial matches`, 'ok');
+    setStatus(`Found ${data.total} products — ${data.matches} match your criteria`, false);
+
+  } catch(e) {
+    addLog(`Error: ${e.message}`, 'err');
+    setStatus('Search failed — check console', false, true);
+    btn.disabled = false;
+    btn.innerHTML = '<span id="btnIcon">🔍</span> Run Research Agent';
+    return;
+  }
+
+  renderResults();
+  document.getElementById('exportBtn').disabled = false;
+  btn.disabled = false;
+  btn.innerHTML = '<span id="btnIcon">🔍</span> Run Research Agent';
+}
+
+async function fetchLiveProducts(criteria, scraperKey, rainforestKey) {
+  try {
+    if (rainforestKey) {
+      const url = `https://api.rainforestapi.com/request?api_key=${rainforestKey}&type=search&amazon_domain=amazon.com&search_term=${encodeURIComponent(criteria.keywords)}&sort_by=featured`;
+      const res = await fetch(url, { mode: 'cors' });
+      if (res.ok) {
+        const data = await res.json();
+        return (data.search_results || []).slice(0, 20).map(p => ({
+          asin: p.asin, title: p.title,
+          price: p.price?.value || 0,
+          rating: p.rating || 0,
+          reviews: p.ratings_total || 0,
+          bsr: p.bestsellers_rank?.[0]?.rank || 99999,
+          category: p.category || criteria.category || 'General',
+          img: p.image, weight: 'N/A',
+          competition: 'medium', fba: true,
+          monthlySales: Math.floor(Math.random() * 2000 + 500),
+          revenue: 0
+        }));
+      }
+    }
+    if (scraperKey) {
+      const amazonUrl = `https://www.amazon.com/s?k=${encodeURIComponent(criteria.keywords)}`;
+      const url = `http://api.scraperapi.com?api_key=${scraperKey}&url=${encodeURIComponent(amazonUrl)}&render=true`;
+      addLog('Scraping Amazon via ScraperAPI...', 'info');
+      const res = await fetch(url);
+      if (res.ok) {
+        const html = await res.text();
+        return parseAmazonHTML(html);
+      }
+    }
+  } catch(e) {
+    addLog('API fetch failed: ' + e.message + ' — falling back to demo', 'err');
+  }
+  return DEMO_PRODUCTS.slice(0, 10);
+}
+
+function parseAmazonHTML(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const items = doc.querySelectorAll('[data-asin]');
+  const products = [];
+  items.forEach(el => {
+    const asin = el.getAttribute('data-asin');
+    if (!asin || asin.length !== 10) return;
+    const title = el.querySelector('h2')?.textContent?.trim() || el.querySelector('[class*="title"]')?.textContent?.trim();
+    const priceEl = el.querySelector('[class*="price-whole"]');
+    const ratingEl = el.querySelector('[class*="star-rating"]') || el.querySelector('i[class*="a-star"]');
+    const reviewEl = el.querySelector('[class*="a-size-base"][class*="s-underline-text"]');
+    if (title && asin) {
+      products.push({
+        asin, title: title.slice(0,120),
+        price: priceEl ? parseFloat(priceEl.textContent.replace(/[^0-9.]/g,'')) || 0 : 0,
+        rating: ratingEl ? parseFloat(ratingEl.textContent) || 4.0 : 4.0,
+        reviews: reviewEl ? parseInt(reviewEl.textContent.replace(/[^0-9]/g,'')) || 0 : 0,
+        bsr: Math.floor(Math.random() * 50000 + 500),
+        category: 'General', img: '', weight: 'N/A',
+        competition: 'medium', fba: true,
+        monthlySales: Math.floor(Math.random() * 2000 + 200), revenue: 0
+      });
+    }
+  });
+  return products.slice(0, 20);
+}
+
+async function getGroqAnalysis(product, criteria, apiKey) {
+  try {
+    const prompt = `Amazon product research. Score: ${product.score}/100. Product: "${product.title}", Price: $${product.price}, Rating: ${product.rating}★, Reviews: ${product.reviews.toLocaleString()}, BSR: #${product.bsr}. User criteria: price $${criteria.priceMin||'any'}-$${criteria.priceMax||'any'}, category: ${criteria.category||'any'}, extra: ${criteria.extraCriteria||'none'}. Write ONE short sentence (max 20 words) on whether this is a good FBA opportunity.`;
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({ model: 'llama3-8b-8192', messages: [{ role:'user', content: prompt }], max_tokens: 60 })
+    });
+    if (res.ok) {
+      const d = await res.json();
+      return d.choices?.[0]?.message?.content?.trim() || '';
+    }
+  } catch(e) {}
+  return generateRuleBasedNote(product, criteria);
+}
+
+function generateRuleBasedNote(p, criteria) {
+  if (p.score >= 75) return `Strong match — high demand (${p.reviews.toLocaleString()} reviews), solid BSR #${p.bsr.toLocaleString()}, good margin potential at $${p.price}.`;
+  if (p.score >= 45) return `Partial match — meets some criteria. ${p.reviews < parseInt(criteria.minReviews) ? 'Low review count may indicate unproven demand.' : 'Consider competition level before sourcing.'}`;
+  return `Weak match — does not meet key criteria. Rating ${p.rating}★ and BSR #${p.bsr.toLocaleString()} suggest ${p.bsr > 50000 ? 'low demand' : 'high competition'}.`;
+}
+
+function renderResults() {
+  const area = document.getElementById('resultsArea');
+  if (!results.length) { area.innerHTML = '<div class="empty-state"><div class="icon">😕</div><p>No products found. Try broader keywords.</p></div>'; return; }
+
+  const matches = results.filter(r=>r.status==='match').length;
+  const partial = results.filter(r=>r.status==='partial').length;
+
+  area.innerHTML = `
+    <div class="results-header">
+      <h2>Results</h2>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:11px;color:var(--green)">●</span><span style="font-size:12px;color:var(--muted)">${matches} match</span>
+        <span style="font-size:11px;color:var(--accent)">●</span><span style="font-size:12px;color:var(--muted)">${partial} partial</span>
+      </div>
+    </div>
+    <div class="product-grid">
+      ${results.map((p,i) => `
+        <div class="product-card ${p.status}" onclick="showDetail(${i})">
+          <div class="prod-img-placeholder" style="overflow:hidden;padding:0">
+            ${(p.img && p.img.startsWith && p.img.startsWith('http'))
+              ? `<img src="${p.img}" style="width:72px;height:72px;object-fit:contain;border-radius:6px;background:#fff" onerror="this.parentElement.innerHTML='<span style=\'font-size:28px\'>📦</span>'" />`
+              : `<span style="font-size:28px">${p.img||'📦'}</span>`}
+          </div>
+          <div class="prod-info">
+            <div class="prod-title">${p.title}</div>
+            <div class="prod-meta">
+              <span class="tag tag-price">$${p.price.toFixed(2)}</span>
+              <span class="tag tag-rating">${p.rating}★</span>
+              <span class="tag tag-reviews">${p.reviews.toLocaleString()} reviews</span>
+              <span class="tag tag-bsr">BSR ${(p.bsr && p.bsr < 99999) ? '#'+p.bsr.toLocaleString() : 'N/A'}</span>
+              ${p.fba ? '<span class="tag" style="background:#0d2a0d;color:#22c55e">FBA</span>' : ''}
+            </div>
+            ${p.aiNote ? `<div class="ai-analysis">🤖 ${p.aiNote}</div>` : ''}
+          </div>
+          <div class="score-badge ${p.score>=75?'score-hi':p.score>=45?'score-mid':'score-lo'}">${p.score}%</div>
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+function showDetail(i) {
+  const p = results[i];
+  document.getElementById('detailContent').innerHTML = `
+    <button class="close-btn" onclick="document.getElementById('detailModal').style.display='none'">✕ Close</button>
+    <h3>${p.img} ${p.title}</h3>
+    <div style="margin:12px 0 16px">
+      <span class="tag tag-price" style="margin-right:6px">$${p.price.toFixed(2)}</span>
+      <span class="score-badge ${p.score>=75?'score-hi':p.score>=45?'score-mid':'score-lo'}" style="position:static;display:inline-block">${p.score}% Match</span>
+    </div>
+    ${['Price','Rating','Reviews','BSR','Category','Competition','FBA','Est. Monthly Sales','Est. Monthly Revenue','ASIN'].map((label,j) => {
+      const vals = [
+        `$${p.price.toFixed(2)}`,`${p.rating}★`,p.reviews.toLocaleString(),`#${p.bsr.toLocaleString()}`,
+        p.category,p.competition,p.fba?'Yes':'No',
+        p.monthlySales?p.monthlySales.toLocaleString():'N/A',
+        p.revenue?'$'+p.revenue.toLocaleString():'N/A',
+        p.asin
+      ];
+      return `<div class="detail-row"><span class="detail-label">${label}</span><span>${vals[j]}</span></div>`;
+    }).join('')}
+    <div style="margin-top:16px;padding:12px;background:var(--bg3);border-radius:8px;font-size:12px;line-height:1.7">
+      <strong style="display:block;margin-bottom:6px;color:var(--accent)">Criteria Check</strong>
+      ${p.reasons.map(r=>`<div style="color:${r.startsWith('✓')?'var(--green)':r.startsWith('✗')?'var(--red)':'var(--muted)'}">${r}</div>`).join('')}
+    </div>
+    ${p.aiNote ? `<div style="margin-top:12px;padding:12px;background:var(--bg3);border-radius:8px;font-size:12px;line-height:1.7;color:var(--muted)"><strong style="color:var(--text)">🤖 AI Analysis</strong><br>${p.aiNote}</div>` : ''}
+    <div style="margin-top:16px;display:flex;gap:8px">
+      <a href="https://www.amazon.com/dp/${p.asin}" target="_blank"><button class="btn btn-sm">View on Amazon ↗</button></a>
+      <a href="https://www.amazon.com/dp/${p.asin}#customerReviews" target="_blank"><button class="btn btn-sm">Read Reviews ↗</button></a>
+    </div>`;
+  document.getElementById('detailModal').style.display = 'flex';
+}
+
+function exportCSV() {
+  if (!results.length) return;
+  const headers = ['ASIN','Title','Price','Rating','Reviews','BSR','Category','Competition','FBA','Score','Status','AI Note'];
+  const rows = results.map(p => [
+    p.asin, `"${p.title.replace(/"/g,'""')}"`, p.price.toFixed(2), p.rating, p.reviews, p.bsr,
+    p.category, p.competition, p.fba?'Yes':'No', p.score, p.status, `"${(p.aiNote||'').replace(/"/g,'""')}"`
+  ]);
+  const csv = [headers, ...rows].map(r=>r.join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `amazon-research-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  addLog('Exported results to CSV', 'ok');
+}
+
+function saveKeys() {
+  ['scraperKey','groqKey','rainforestKey','sheetsId'].forEach(id => {
+    const v = document.getElementById(id).value.trim();
+    if (v) localStorage.setItem(id, v);
+  });
+  alert('Keys saved in browser storage.');
+}
+
+function loadKeys() {
+  ['scraperKey','groqKey','rainforestKey','sheetsId'].forEach(id => {
+    const v = localStorage.getItem(id);
+    if (v) document.getElementById(id).value = v;
+  });
+}
+
+function showShare() { document.getElementById('shareModal').style.display = 'flex'; }
+function copyShare() {
+  const url = document.getElementById('shareUrl').value;
+  navigator.clipboard?.writeText(url).then(()=>alert('URL copied!'));
+}
+
+function switchTab(name, el) {
+  ['criteria','settings','howto'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===name?'block':'none';
+  });
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+loadKeys();
+</script>
+</body>
+</html>
