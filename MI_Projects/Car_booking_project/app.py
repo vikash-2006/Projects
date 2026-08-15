@@ -1,16 +1,21 @@
+import os
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import mysql.connector
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
 # ── MySQL Connection Settings ──
-MYSQL_HOST = "localhost"
-MYSQL_USER = "root"
-MYSQL_PASSWORD = "root123"
-MYSQL_DB = "drivex_db"
+MYSQL_HOST = os.getenv("DB_HOST", "localhost")
+MYSQL_USER = os.getenv("DB_USER", "root")
+MYSQL_PASSWORD = os.getenv("DB_PASSWORD", "")
+MYSQL_DB = os.getenv("DB_NAME", "drivex_db")
 
 def get_db_connection():
     return mysql.connector.connect(
